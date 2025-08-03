@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mesas Millonarias</title>
+    <style>
+        /* Estilos base (para móviles) */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #0d1a26;
+            color: #ecf0f1;
+            margin: 0;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-x: hidden;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: relative; /* Necesario para el botón de configuración */
+        }
+
+        .contenedor-sorteo {
+            position: relative;
+            background-color: rgba(31, 50, 70, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            max-width: 600px;
+            width: 100%;
+            border: 2px solid #34495e;
+            z-index: 2;
+        }
+
+        h1 {
+            color: #f39c12;
+            margin-bottom: 20px;
+            font-size: 2em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+            animation: neon-glow 2s ease-in-out infinite alternate;
+        }
+
+        /* Animación para el título */
+        @keyframes neon-glow {
+            from {
+                text-shadow: 0 0 5px #f39c12, 0 0 10px #f39c12, 0 0 15px #f39c12;
+            }
+            to {
+                text-shadow: 0 0 10px #f39c12, 0 0 20px #f39c12, 0 0 30px #f39c12, 0 0 40px #f39c12;
+            }
+        }
+
+        /* Botón de configuración flotante */
+        #btn-configuracion-flotante {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #34495e;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.5em;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            z-index: 3;
+            transition: transform 0.2s, background-color 0.3s;
+        }
+        #btn-configuracion-flotante:hover {
+            background-color: #2c3e50;
+            transform: scale(1.1);
+        }
+
+        #resultado-sorteo {
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            background-color: rgba(52, 73, 94, 0.8);
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px dashed #95a5a6;
+            transition: all 0.5s ease;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+        }
+        
+        #resultado-sorteo p {
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        /* Estilos para el premio */
+        #premio {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 15px;
+            opacity: 0;
+            animation: fadeIn 1s forwards;
+            color: #2ecc71; /* Color por defecto, se sobrescribe con la clase de color */
+        }
+        
+        .advertencia-sorteo {
+            color: #f39c12;
+            font-size: 0.9em;
+            margin-top: 15px;
+            animation: fadeIn 1s forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Clases de color para el texto */
+        .color-amarillo-brillante { color: #F1C40F; animation: iluminar-color-amarillo 1.5s infinite alternate; }
+        .color-lila { color: #8E44AD; animation: iluminar-color-lila 1.5s infinite alternate; }
+        .color-amarillo { color: #F1C40F; animation: iluminar-color-amarillo 1.5s infinite alternate; }
+        .color-rojo { color: #E74C3C; animation: iluminar-color-rojo 1.5s infinite alternate; }
+        .color-verde { color: #2ECC71; animation: iluminar-color-verde 1.5s infinite alternate; }
+        .color-azul { color: #3498DB; animation: iluminar-color-azul 1.5s infinite alternate; }
+        .color-plomo { color: #95A5A6; animation: iluminar-color-plomo 1.5s infinite alternate; }
+        .color-naranjo { color: #E67E22; animation: iluminar-color-naranjo 1.5s infinite alternate; }
+        .color-burdeo { color: #9B59B6; animation: iluminar-color-burdeo 1.5s infinite alternate; }
+        .color-celeste { color: #3498DB; animation: iluminar-color-celeste 1.5s infinite alternate; }
+        .color-cafe { color: #6F4E37; animation: iluminar-color-cafe 1.5s infinite alternate; }
+        .color-negro { color: #000000; animation: iluminar-color-negro 1.5s infinite alternate; }
+        .color-calipso { color: #00A896; animation: iluminar-color-calipso 1.5s infinite alternate; }
+        .color-gris { color: #7f8c8d; animation: iluminar-color-gris 1.5s infinite alternate; }
+
+        /* Animaciones para la iluminación */
+        @keyframes iluminar-color-lila { from {text-shadow: 0 0 5px #8E44AD;} to {text-shadow: 0 0 15px #8E44AD, 0 0 25px #8E44AD;} }
+        @keyframes iluminar-color-amarillo { from {text-shadow: 0 0 5px #F1C40F;} to {text-shadow: 0 0 15px #F1C40F, 0 0 25px #F1C40F;} }
+        @keyframes iluminar-color-rojo { from {text-shadow: 0 0 5px #E74C3C;} to {text-shadow: 0 0 15px #E74C3C, 0 0 25px #E74C3C;} }
+        @keyframes iluminar-color-verde { from {text-shadow: 0 0 5px #2ECC71;} to {text-shadow: 0 0 15px #2ECC71, 0 0 25px #2ECC71;} }
+        @keyframes iluminar-color-azul { from {text-shadow: 0 0 5px #3498DB;} to {text-shadow: 0 0 15px #3498DB, 0 0 25px #3498DB;} }
+        @keyframes iluminar-color-plomo { from {text-shadow: 0 0 5px #95A5A6;} to {text-shadow: 0 0 15px #95A5A6, 0 0 25px #95A5A6;} }
+        @keyframes iluminar-color-naranjo { from {text-shadow: 0 0 5px #E67E22;} to {text-shadow: 0 0 15px #E67E22, 0 0 25px #E67E22;} }
+        @keyframes iluminar-color-burdeo { from {text-shadow: 0 0 5px #9B59B6;} to {text-shadow: 0 0 15px #9B59B6, 0 0 25px #9B59B6;} }
+        @keyframes iluminar-color-celeste { from {text-shadow: 0 0 5px #3498DB;} to {text-shadow: 0 0 15px #3498DB, 0 0 25px #3498DB;} }
+        @keyframes iluminar-color-cafe { from {text-shadow: 0 0 5px #6F4E37;} to {text-shadow: 0 0 15px #6F4E37, 0 0 25px #6F4E37;} }
+        @keyframes iluminar-color-negro { from {text-shadow: 0 0 5px #000000;} to {text-shadow: 0 0 15px #000000, 0 0 25px #000000;} }
+        @keyframes iluminar-color-calipso { from {text-shadow: 0 0 5px #00A896;} to {text-shadow: 0 0 15px #00A896, 0 0 25px #00A896;} }
+        @keyframes iluminar-color-gris { from {text-shadow: 0 0 5px #7f8c8d;} to {text-shadow: 0 0 15px #7f8c8d, 0 0 25px #7f8c8d;} }
+
+
+        #premio-condicion {
+            font-size: 0.9em;
+            color: #95a5a6;
+            margin-top: 10px;
+            opacity: 0;
+            animation: fadeIn 1s forwards;
+        }
+
+        /* Efecto de luces para el resultado */
+        .resultado-ganador {
+            animation: iluminar-border 1.5s infinite alternate;
+            border: 2px solid #f39c12;
+        }
+
+        @keyframes iluminar-border {
+            from { box-shadow: 0 0 5px #f39c12; }
+            to { box-shadow: 0 0 20px #f39c12, 0 0 30px #f39c12; }
+        }
+
+
+        .btn-cerrar {
+            padding: 10px 20px;
+            background-color: #e74c3c;
+            font-weight: bold;
+            box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            margin-top: 20px;
+        }
+        .btn-cerrar:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn-modal {
+            background-color: #27ae60;
+        }
+
+        /* Animación mejorada para el icono intercalado de la ruleta y las cartas */
+        @keyframes intercalar-iconos {
+            0%, 100% {
+                content: '🎰';
+                transform: rotate(0deg);
+                opacity: 1;
+            }
+            49% {
+                content: '🎰';
+                transform: rotate(180deg);
+                opacity: 0.8;
+            }
+            50% {
+                content: '🃏';
+                transform: rotate(180deg);
+                opacity: 0.2;
+            }
+            51% {
+                content: '🃏';
+                transform: rotate(180deg);
+                opacity: 0.8;
+            }
+        }
+
+        .girando::before {
+            display: block;
+            font-size: 2.5em; /* Aumenta el tamaño del icono */
+            animation: intercalar-iconos 0.8s linear infinite; /* Animación más rápida */
+            line-height: 1;
+        }
+
+        /* Efecto Confeti */
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f39c12;
+            animation: fall 3s linear forwards;
+            opacity: 0;
+            top: -20px;
+            left: 50%;
+            transform: rotate(0deg);
+        }
+
+        @keyframes fall {
+            0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+            100% { transform: translate(var(--x), 100vh) rotate(var(--deg)); opacity: 0; }
+        }
+
+        /* Pie de página (marca de agua) */
+        .footer {
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+            text-align: center;
+            font-size: 0.8em;
+            color: rgba(236, 240, 241, 0.3);
+            z-index: 0;
+        }
+
+        /* Estilos del Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 4; /* Asegura que esté por encima de todo */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.7);
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .modal-contenido {
+            background-color: #1f3246;
+            margin: 5% auto;
+            padding: 20px;
+            border: 2px solid #34495e;
+            width: 100%;
+            max-width: 600px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        .modal-contenido h3 {
+            color: #f39c12;
+            margin-top: 0;
+            font-size: 1.5em;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
+            margin-bottom: 10px;
+        }
+        
+        .modal-seccion {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #4a627d;
+            padding-bottom: 15px;
+        }
+        
+        .modal-seccion:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+        
+        .modal-seccion h4 {
+            color: #ecf0f1;
+            margin: 0 0 10px 0;
+        }
+
+        .modal-botones-opciones {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            justify-content: flex-end;
+        }
+        
+        .modal-botones-opciones .btn-opcion {
+            font-size: 0.9em;
+            padding: 5px 10px;
+            background-color: #555;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .lista-opciones {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .lista-opciones label {
+            background-color: #34495e;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            text-align: left;
+            display: block;
+            box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .lista-opciones label:hover {
+            background-color: #4a627d;
+        }
+
+        .lista-opciones input {
+            margin-right: 8px;
+        }
+
+        /* Botón de cierre superior (la 'x') */
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 2em;
+            font-weight: bold;
+            color: #ecf0f1;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .close-btn:hover,
+        .close-btn:focus {
+            color: #f39c12;
+            text-decoration: none;
+        }
+
+        .btn-cerrar {
+            padding: 10px 20px;
+            background-color: #e74c3c;
+            font-weight: bold;
+            box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            margin-top: 20px;
+        }
+        .btn-cerrar:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn-modal {
+            background-color: #27ae60;
+        }
+
+        /* Media Query para pantallas grandes (computadoras/tabletas) */
+        @media (min-width: 768px) {
+            .contenedor-sorteo {
+                padding: 40px;
+            }
+            .btn {
+                padding: 15px 25px;
+                font-size: 1.2em;
+            }
+            #resultado-sorteo {
+                min-height: 100px;
+                font-size: 2em;
+            }
+            .modal-contenido {
+                padding: 30px;
+                margin: 5% auto;
+            }
+            .modal-contenido h3 {
+                font-size: 1.8em;
+            }
+            .lista-opciones {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <button id="btn-configuracion-flotante">⚙️</button>
+
+    <main class="contenedor-sorteo">
+        <h1>Mesas Millonarias</h1>
+
+        <div id="resultado-sorteo">
+            <p>El resultado aparecerá aquí.</p>
+        </div>
+    </main>
+
+    <div id="modal-configuracion" class="modal">
+        <div class="modal-contenido">
+            <span class="close-btn">&times;</span>
+            <h3>Configuración</h3>
+            
+            <div class="modal-seccion">
+                <h4>Selecciona las mesas en juego:</h4>
+                <div class="modal-botones-opciones">
+                    <button class="btn-opcion" onclick="toggleCheckboxes('mesas-en-juego', true)">Seleccionar todos</button>
+                    <button class="btn-opcion" onclick="toggleCheckboxes('mesas-en-juego', false)">Desmarcar todos</button>
+                </div>
+                <ul class="lista-opciones" id="lista-mesas-juego"></ul>
+            </div>
+            
+            <div class="modal-seccion">
+                <h4>Colores de Ruletas:</h4>
+                
+                <div class="sub-seccion">
+                    <h5>Ruleta 21, 24 y 25:</h5>
+                    <div class="modal-botones-opciones">
+                        <button class="btn-opcion" onclick="toggleCheckboxes('colores-ruleta-21', true)">Seleccionar todos</button>
+                        <button class="btn-opcion" onclick="toggleCheckboxes('colores-ruleta-21', false)">Desmarcar todos</button>
+                    </div>
+                    <ul class="lista-opciones" id="lista-colores-21"></ul>
+                </div>
+
+                <div class="sub-seccion">
+                    <h5>Ruleta 22:</h5>
+                    <div class="modal-botones-opciones">
+                        <button class="btn-opcion" onclick="toggleCheckboxes('colores-ruleta-22', true)">Seleccionar todos</button>
+                        <button class="btn-opcion" onclick="toggleCheckboxes('colores-ruleta-22', false)">Desmarcar todos</button>
+                    </div>
+                    <ul class="lista-opciones" id="lista-colores-22"></ul>
+                </div>
+                
+                <div class="sub-seccion">
+                    <h5>Ruleta 23:</h5>
+                    <div class="modal-botones-opciones">
+                        <button class="btn-opcion" onclick="toggleCheckboxes('colores-ruleta-23', true)">Seleccionar todos</button>
+                        <button class="btn-opcion" onclick="toggleCheckboxes('colores-ruleta-23', false)">Desmarcar todos</button>
+                    </div>
+                    <ul class="lista-opciones" id="lista-colores-23"></ul>
+                </div>
+            </div>
+            
+            <button id="btn-cerrar-modal-configuracion" class="btn btn-cerrar">Cerrar</button>
+        </div>
+    </div>
+
+    <div id="confetti-container" class="confetti-container"></div>
+
+    <footer class="footer">
+        Realizado por AppWeb Carlos Perez ®
+    </footer>
+
+    <script>
+        const todasLasMesas = [
+            'Blackjack 17', 'Blackjack 15', 'Blackjack 34',
+            'Draw-Poker 7', 'Draw-Poker 12', 'Hold\'em-Poker 8', 'Caribbean-Poker 13',
+            'Ruleta 21', 'Ruleta 22', 'Ruleta 23', 'Ruleta 24', 'Ruleta 25'
+        ];
+        
+        const coloresRuletaEspecial = ['Lila', 'Amarillo', 'Rojo', 'Verde', 'Azul', 'Plomo', 'Naranjo', 'Burdeo'];
+        const todosLosColoresEstandar = ['Amarillo', 'Verde', 'Azul', 'Celeste', 'Café', 'Negro', 'Burdeo', 'Rojo', 'Naranjo', 'Calipso', 'Gris'];
+
+        function generarSelectorMesas() {
+            const listaMesas = document.getElementById('lista-mesas-juego');
+            listaMesas.innerHTML = '';
+            
+            todasLasMesas.forEach(mesa => {
+                const li = crearCheckbox('mesas-en-juego', mesa);
+                listaMesas.appendChild(li);
+            });
+        }
+        
+        function generarSelectorColores(listaId, colores, name) {
+            const listaColores = document.getElementById(listaId);
+            listaColores.innerHTML = '';
+            colores.forEach(color => {
+                const li = crearCheckbox(name, color);
+                listaColores.appendChild(li);
+            });
+        }
+
+        function crearCheckbox(name, value) {
+            const li = document.createElement('li');
+            const label = document.createElement('label');
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = `${name}-${value.replace(/\s/g, '-').replace('\'', '').toLowerCase()}`;
+            checkbox.name = name;
+            checkbox.value = value;
+            checkbox.checked = true;
+
+            label.htmlFor = `${name}-${value.replace(/\s/g, '-').replace('\'', '').toLowerCase()}`;
+            label.textContent = value;
+
+            li.appendChild(checkbox);
+            li.appendChild(label);
+            return li;
+        }
+        
+        function toggleCheckboxes(name, checked) {
+            const checkboxes = document.querySelectorAll(`input[name="${name}"]`);
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = checked;
+            });
+        }
+
+        generarSelectorMesas();
+        generarSelectorColores('lista-colores-21', coloresRuletaEspecial, 'colores-ruleta-21');
+        generarSelectorColores('lista-colores-22', todosLosColoresEstandar, 'colores-ruleta-22');
+        generarSelectorColores('lista-colores-23', todosLosColoresEstandar, 'colores-ruleta-23');
+
+        const modalConfiguracion = document.getElementById('modal-configuracion');
+        const btnAbrirModalConfiguracion = document.getElementById('btn-configuracion-flotante');
+        const btnCerrarModalConfiguracion = document.getElementById('btn-cerrar-modal-configuracion');
+        const btnCerrarModalX = document.querySelector('.close-btn');
+        const divResultado = document.getElementById('resultado-sorteo');
+        
+        let sorteoEnCurso = false;
+
+        const cerrarModal = () => {
+            modalConfiguracion.style.display = 'none';
+        };
+
+        btnAbrirModalConfiguracion.addEventListener('click', (event) => {
+            event.stopPropagation();
+            modalConfiguracion.style.display = 'block';
+        });
+
+        btnCerrarModalConfiguracion.addEventListener('click', cerrarModal);
+        btnCerrarModalX.addEventListener('click', cerrarModal);
+
+        window.addEventListener('click', (event) => {
+            if (!modalConfiguracion.contains(event.target) && !btnAbrirModalConfiguracion.contains(event.target)) {
+                 if (!sorteoEnCurso) {
+                    realizarSorteo();
+                }
+            }
+        });
+
+        function lanzarConfeti() {
+            const confettiContainer = document.getElementById('confetti-container');
+            const colors = ['#f39c12', '#e74c3c', '#3498db', '#2ecc71', '#9b59b6'];
+
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = `${Math.random() * 100}vw`;
+                confetti.style.animationDelay = `${Math.random() * 0.5}s`;
+                confetti.style.setProperty('--x', `${(Math.random() - 0.5) * 200}px`);
+                confetti.style.setProperty('--deg', `${Math.random() * 360}deg`);
+                confettiContainer.appendChild(confetti);
+            }
+            setTimeout(() => {
+                confettiContainer.innerHTML = '';
+            }, 3000);
+        }
+
+        function realizarSorteo() {
+            sorteoEnCurso = true;
+            divResultado.classList.remove('resultado-ganador');
+            divResultado.innerHTML = '<p>El resultado aparecerá aquí.</p>';
+
+            const mesasEnJuego = Array.from(document.querySelectorAll('input[name="mesas-en-juego"]:checked')).map(cb => cb.value);
+
+            if (mesasEnJuego.length === 0) {
+                divResultado.innerHTML = '<p style="color: #e74c3c;">¡Error! Debes seleccionar al menos una mesa.</p>';
+                sorteoEnCurso = false;
+                return;
+            }
+
+            const indiceMesaGanadora = Math.floor(Math.random() * mesasEnJuego.length);
+            const mesaGanadora = mesasEnJuego[indiceMesaGanadora];
+
+            divResultado.innerHTML = `<p>Realizando el sorteo...</p>`;
+            divResultado.classList.add('girando');
+
+            const tiempoSorteo = Math.floor(Math.random() * (5000 - 3000 + 1)) + 3000;
+
+            setTimeout(() => {
+                divResultado.classList.remove('girando');
+                let className = '';
+
+                if (mesaGanadora.includes('Póker') || mesaGanadora.includes('Blackjack') || mesaGanadora.includes('Draw-Poker') || mesaGanadora.includes('Hold\'em-Poker') || mesaGanadora.includes('Caribbean-Poker')) {
+                    const numeroGanador = Math.floor(Math.random() * 6) + 1;
+                    divResultado.style.fontSize = '2em';
+                    divResultado.innerHTML = `<p>¡Mesa ganadora: **${mesaGanadora}**! Puesto: <span class="color-amarillo-brillante">**${numeroGanador}**</span></p>`;
+                } else if (mesaGanadora.includes('Ruleta')) {
+                    let coloresParaSortear;
+                    if (mesaGanadora === 'Ruleta 21' || mesaGanadora === 'Ruleta 24' || mesaGanadora === 'Ruleta 25') {
+                        coloresParaSortear = Array.from(document.querySelectorAll('input[name="colores-ruleta-21"]:checked')).map(cb => cb.value);
+                    } else if (mesaGanadora === 'Ruleta 22') {
+                        coloresParaSortear = Array.from(document.querySelectorAll('input[name="colores-ruleta-22"]:checked')).map(cb => cb.value);
+                    } else if (mesaGanadora === 'Ruleta 23') {
+                        coloresParaSortear = Array.from(document.querySelectorAll('input[name="colores-ruleta-23"]:checked')).map(cb => cb.value);
+                    }
+
+                    if (!coloresParaSortear || coloresParaSortear.length === 0) {
+                        divResultado.innerHTML = '<p style="color: #e74c3c;">¡Error! Debes seleccionar al menos un color para la ruleta seleccionada.</p>';
+                        sorteoEnCurso = false;
+                        return;
+                    }
+
+                    const indiceColorGanador = Math.floor(Math.random() * coloresParaSortear.length);
+                    const colorGanador = coloresParaSortear[indiceColorGanador];
+
+                    className = `color-${colorGanador.toLowerCase().replace(/á/g, 'a').replace(' ', '-')}`;
+
+                    divResultado.style.fontSize = '2em';
+                    divResultado.innerHTML = `<p>¡Mesa ganadora: **${mesaGanadora}**! Color: <span class="${className}">**${colorGanador}**</span></p>`;
+                }
+
+                divResultado.classList.add('resultado-ganador');
+                lanzarConfeti();
+
+                setTimeout(() => {
+                    const divPremio = document.createElement('p');
+                    divPremio.id = 'premio';
+                    divPremio.textContent = '¡100.000 en Fichas Promocionales!';
+                    if (className !== '') {
+                        divPremio.classList.add(className);
+                    }
+                    divResultado.appendChild(divPremio);
+
+                    const divCondicion = document.createElement('p');
+                    divCondicion.id = 'premio-condicion';
+                    divCondicion.textContent = 'Premio válido con tarjeta del casino.';
+                    divResultado.appendChild(divCondicion);
+                    
+                    sorteoEnCurso = false;
+
+                }, 5000);
+
+            }, tiempoSorteo);
+        }
+    </script>
+</body>
+</html>
