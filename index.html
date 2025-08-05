@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mesas Millonarias</title>
-    <style>
+    <style id="estilos-dinamicos">
         /* Estilos base (para móviles) */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -23,7 +23,7 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            position: relative; /* Necesario para el botón de configuración */
+            position: relative;
         }
 
         .contenedor-sorteo {
@@ -46,17 +46,11 @@
             animation: neon-glow 2s ease-in-out infinite alternate;
         }
 
-        /* Animación para el título */
         @keyframes neon-glow {
-            from {
-                text-shadow: 0 0 5px #f39c12, 0 0 10px #f39c12, 0 0 15px #f39c12;
-            }
-            to {
-                text-shadow: 0 0 10px #f39c12, 0 0 20px #f39c12, 0 0 30px #f39c12, 0 0 40px #f39c12;
-            }
+            from { text-shadow: 0 0 5px #f39c12, 0 0 10px #f39c12, 0 0 15px #f39c12; }
+            to { text-shadow: 0 0 10px #f39c12, 0 0 20px #f39c12, 0 0 30px #f39c12, 0 0 40px #f39c12; }
         }
 
-        /* Botón de configuración flotante */
         #btn-configuracion-flotante {
             position: absolute;
             top: 20px;
@@ -78,6 +72,28 @@
             transform: scale(1.1);
         }
 
+        #btn-premio-confeti {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.5em;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            z-index: 3;
+            transition: transform 0.2s, background-color 0.3s;
+            display: none; /* Oculto por defecto */
+        }
+        #btn-premio-confeti:hover {
+            background-color: #27ae60;
+            transform: scale(1.1);
+        }
+
         #resultado-sorteo {
             min-height: 80px;
             display: flex;
@@ -93,27 +109,26 @@
             transition: all 0.5s ease;
             box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
         }
-        
+
         #resultado-sorteo p {
             margin: 0;
             line-height: 1.5;
         }
 
-        /* Estilos para el premio */
-        #premio {
+        #premio-mensaje, #condicion-mensaje {
             font-size: 1.2em;
             font-weight: bold;
             margin-top: 15px;
             opacity: 0;
             animation: fadeIn 1s forwards;
-            color: #2ecc71; /* Color por defecto, se sobrescribe con la clase de color */
+            color: #2ecc71;
         }
-        
-        .advertencia-sorteo {
-            color: #f39c12;
-            font-size: 0.9em;
-            margin-top: 15px;
-            animation: fadeIn 1s forwards;
+
+        #condicion-mensaje {
+            font-size: 1em;
+            font-weight: normal;
+            color: #ecf0f1;
+            margin-top: 5px;
         }
 
         @keyframes fadeIn {
@@ -121,47 +136,6 @@
             to { opacity: 1; }
         }
 
-        /* Clases de color para el texto */
-        .color-amarillo-brillante { color: #F1C40F; animation: iluminar-color-amarillo 1.5s infinite alternate; }
-        .color-lila { color: #8E44AD; animation: iluminar-color-lila 1.5s infinite alternate; }
-        .color-amarillo { color: #F1C40F; animation: iluminar-color-amarillo 1.5s infinite alternate; }
-        .color-rojo { color: #E74C3C; animation: iluminar-color-rojo 1.5s infinite alternate; }
-        .color-verde { color: #2ECC71; animation: iluminar-color-verde 1.5s infinite alternate; }
-        .color-azul { color: #3498DB; animation: iluminar-color-azul 1.5s infinite alternate; }
-        .color-plomo { color: #95A5A6; animation: iluminar-color-plomo 1.5s infinite alternate; }
-        .color-naranjo { color: #E67E22; animation: iluminar-color-naranjo 1.5s infinite alternate; }
-        .color-burdeo { color: #9B59B6; animation: iluminar-color-burdeo 1.5s infinite alternate; }
-        .color-celeste { color: #3498DB; animation: iluminar-color-celeste 1.5s infinite alternate; }
-        .color-cafe { color: #6F4E37; animation: iluminar-color-cafe 1.5s infinite alternate; }
-        .color-negro { color: #000000; animation: iluminar-color-negro 1.5s infinite alternate; }
-        .color-calipso { color: #00A896; animation: iluminar-color-calipso 1.5s infinite alternate; }
-        .color-gris { color: #7f8c8d; animation: iluminar-color-gris 1.5s infinite alternate; }
-
-        /* Animaciones para la iluminación */
-        @keyframes iluminar-color-lila { from {text-shadow: 0 0 5px #8E44AD;} to {text-shadow: 0 0 15px #8E44AD, 0 0 25px #8E44AD;} }
-        @keyframes iluminar-color-amarillo { from {text-shadow: 0 0 5px #F1C40F;} to {text-shadow: 0 0 15px #F1C40F, 0 0 25px #F1C40F;} }
-        @keyframes iluminar-color-rojo { from {text-shadow: 0 0 5px #E74C3C;} to {text-shadow: 0 0 15px #E74C3C, 0 0 25px #E74C3C;} }
-        @keyframes iluminar-color-verde { from {text-shadow: 0 0 5px #2ECC71;} to {text-shadow: 0 0 15px #2ECC71, 0 0 25px #2ECC71;} }
-        @keyframes iluminar-color-azul { from {text-shadow: 0 0 5px #3498DB;} to {text-shadow: 0 0 15px #3498DB, 0 0 25px #3498DB;} }
-        @keyframes iluminar-color-plomo { from {text-shadow: 0 0 5px #95A5A6;} to {text-shadow: 0 0 15px #95A5A6, 0 0 25px #95A5A6;} }
-        @keyframes iluminar-color-naranjo { from {text-shadow: 0 0 5px #E67E22;} to {text-shadow: 0 0 15px #E67E22, 0 0 25px #E67E22;} }
-        @keyframes iluminar-color-burdeo { from {text-shadow: 0 0 5px #9B59B6;} to {text-shadow: 0 0 15px #9B59B6, 0 0 25px #9B59B6;} }
-        @keyframes iluminar-color-celeste { from {text-shadow: 0 0 5px #3498DB;} to {text-shadow: 0 0 15px #3498DB, 0 0 25px #3498DB;} }
-        @keyframes iluminar-color-cafe { from {text-shadow: 0 0 5px #6F4E37;} to {text-shadow: 0 0 15px #6F4E37, 0 0 25px #6F4E37;} }
-        @keyframes iluminar-color-negro { from {text-shadow: 0 0 5px #000000;} to {text-shadow: 0 0 15px #000000, 0 0 25px #000000;} }
-        @keyframes iluminar-color-calipso { from {text-shadow: 0 0 5px #00A896;} to {text-shadow: 0 0 15px #00A896, 0 0 25px #00A896;} }
-        @keyframes iluminar-color-gris { from {text-shadow: 0 0 5px #7f8c8d;} to {text-shadow: 0 0 15px #7f8c8d, 0 0 25px #7f8c8d;} }
-
-
-        #premio-condicion {
-            font-size: 0.9em;
-            color: #95a5a6;
-            margin-top: 10px;
-            opacity: 0;
-            animation: fadeIn 1s forwards;
-        }
-
-        /* Efecto de luces para el resultado */
         .resultado-ganador {
             animation: iluminar-border 1.5s infinite alternate;
             border: 2px solid #f39c12;
@@ -172,54 +146,59 @@
             to { box-shadow: 0 0 20px #f39c12, 0 0 30px #f39c12; }
         }
 
-
-        .btn-cerrar {
-            padding: 10px 20px;
-            background-color: #e74c3c;
+        .btn {
+            background-color: #2c3e50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
             font-weight: bold;
-            box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-            margin-top: 20px;
         }
-        .btn-cerrar:hover {
-            background-color: #c0392b;
+        .btn:hover { background-color: #34495e; }
+        .btn-cerrar { background-color: #e74c3c; }
+        .btn-cerrar:hover { background-color: #c0392b; }
+        .btn-eliminar {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+            font-weight: normal;
         }
-        
-        .btn-modal {
-            background-color: #27ae60;
+        .btn-eliminar:hover { background-color: #c0392b; }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
         }
+        .input-group input {
+            flex-grow: 1;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #4a627d;
+            background-color: #1f3246;
+            color: #ecf0f1;
+        }
+        .input-group .btn-agregar { padding: 8px 15px; }
 
-        /* Animación mejorada para el icono intercalado de la ruleta y las cartas */
         @keyframes intercalar-iconos {
-            0%, 100% {
-                content: '🎰';
-                transform: rotate(0deg);
-                opacity: 1;
-            }
-            49% {
-                content: '🎰';
-                transform: rotate(180deg);
-                opacity: 0.8;
-            }
-            50% {
-                content: '🃏';
-                transform: rotate(180deg);
-                opacity: 0.2;
-            }
-            51% {
-                content: '🃏';
-                transform: rotate(180deg);
-                opacity: 0.8;
-            }
+            0%, 100% { content: '🎰'; transform: rotate(0deg); opacity: 1; }
+            49% { content: '🎰'; transform: rotate(180deg); opacity: 0.8; }
+            50% { content: '🃏'; transform: rotate(180deg); opacity: 0.2; }
+            51% { content: '🃏'; transform: rotate(180deg); opacity: 0.8; }
         }
 
         .girando::before {
             display: block;
-            font-size: 2.5em; /* Aumenta el tamaño del icono */
-            animation: intercalar-iconos 0.8s linear infinite; /* Animación más rápida */
+            font-size: 2.5em;
+            animation: intercalar-iconos 0.8s linear infinite;
             line-height: 1;
         }
 
-        /* Efecto Confeti */
         .confetti-container {
             position: fixed;
             top: 0;
@@ -228,26 +207,26 @@
             height: 100%;
             pointer-events: none;
             z-index: 1;
+            overflow: hidden;
         }
 
         .confetti {
             position: absolute;
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
             background-color: #f39c12;
-            animation: fall 3s linear forwards;
-            opacity: 0;
+            animation: fall 5s linear infinite;
             top: -20px;
             left: 50%;
-            transform: rotate(0deg);
+            transform: translateX(-50%) rotate(0deg);
+            will-change: transform, opacity;
         }
 
         @keyframes fall {
-            0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
-            100% { transform: translate(var(--x), 100vh) rotate(var(--deg)); opacity: 0; }
+            0% { transform: translateX(var(--x)) translateY(0) rotate(var(--deg)); opacity: 1; }
+            100% { transform: translateX(var(--x-end)) translateY(110vh) rotate(var(--deg-end)); opacity: 0; }
         }
 
-        /* Pie de página (marca de agua) */
         .footer {
             position: absolute;
             bottom: 10px;
@@ -258,11 +237,10 @@
             z-index: 0;
         }
 
-        /* Estilos del Modal */
         .modal {
             display: none;
             position: fixed;
-            z-index: 4; /* Asegura que esté por encima de todo */
+            z-index: 4;
             left: 0;
             top: 0;
             width: 100%;
@@ -292,19 +270,19 @@
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
             margin-bottom: 10px;
         }
-        
+
         .modal-seccion {
             margin-bottom: 20px;
-            border-bottom: 1px solid #4a627d;
+            border-bottom: 1.5px solid #4a627d;
             padding-bottom: 15px;
         }
-        
+
         .modal-seccion:last-child {
             border-bottom: none;
             padding-bottom: 0;
             margin-bottom: 0;
         }
-        
+
         .modal-seccion h4 {
             color: #ecf0f1;
             margin: 0 0 10px 0;
@@ -316,7 +294,7 @@
             margin-bottom: 10px;
             justify-content: flex-end;
         }
-        
+
         .modal-botones-opciones .btn-opcion {
             font-size: 0.9em;
             padding: 5px 10px;
@@ -326,7 +304,7 @@
             border-radius: 5px;
             cursor: pointer;
         }
-
+        
         .lista-opciones {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
@@ -345,17 +323,38 @@
             text-align: left;
             display: block;
             box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
         }
 
         .lista-opciones label:hover {
             background-color: #4a627d;
         }
 
-        .lista-opciones input {
+        .lista-opciones input[type="checkbox"] {
             margin-right: 8px;
         }
+        .lista-opciones li {
+            position: relative;
+        }
+        .lista-opciones li .btn-eliminar {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 5px;
+            font-size: 1.2em;
+            background: none;
+            color: #e74c3c;
+            border: none;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .lista-opciones li:hover .btn-eliminar {
+            opacity: 1;
+        }
 
-        /* Botón de cierre superior (la 'x') */
         .close-btn {
             position: absolute;
             top: 10px;
@@ -372,41 +371,12 @@
             text-decoration: none;
         }
 
-        .btn-cerrar {
-            padding: 10px 20px;
-            background-color: #e74c3c;
-            font-weight: bold;
-            box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-            margin-top: 20px;
-        }
-        .btn-cerrar:hover {
-            background-color: #c0392b;
-        }
-        
-        .btn-modal {
-            background-color: #27ae60;
-        }
-
-        /* Media Query para pantallas grandes (computadoras/tabletas) */
         @media (min-width: 768px) {
-            .contenedor-sorteo {
-                padding: 40px;
-            }
-            .btn {
-                padding: 15px 25px;
-                font-size: 1.2em;
-            }
-            #resultado-sorteo {
-                min-height: 100px;
-                font-size: 2em;
-            }
-            .modal-contenido {
-                padding: 30px;
-                margin: 5% auto;
-            }
-            .modal-contenido h3 {
-                font-size: 1.8em;
-            }
+            .contenedor-sorteo { padding: 40px; }
+            .btn { padding: 15px 25px; font-size: 1.2em; }
+            #resultado-sorteo { min-height: 100px; font-size: 2em; }
+            .modal-contenido { padding: 30px; margin: 5% auto; }
+            .modal-contenido h3 { font-size: 1.8em; }
             .lista-opciones {
                 grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
                 gap: 15px;
@@ -415,12 +385,12 @@
     </style>
 </head>
 <body>
-    
+
+    <button id="btn-premio-confeti" title="Entregar Premio">🎉</button>
     <button id="btn-configuracion-flotante">⚙️</button>
 
     <main class="contenedor-sorteo">
         <h1>Mesas Millonarias</h1>
-
         <div id="resultado-sorteo">
             <p>El resultado aparecerá aquí.</p>
         </div>
@@ -430,19 +400,21 @@
         <div class="modal-contenido">
             <span class="close-btn">&times;</span>
             <h3>Configuración</h3>
-            
             <div class="modal-seccion">
-                <h4>Selecciona las mesas en juego:</h4>
+                <h4>Mesas en juego:</h4>
                 <div class="modal-botones-opciones">
                     <button class="btn-opcion" onclick="toggleCheckboxes('mesas-en-juego', true)">Seleccionar todos</button>
                     <button class="btn-opcion" onclick="toggleCheckboxes('mesas-en-juego', false)">Desmarcar todos</button>
                 </div>
                 <ul class="lista-opciones" id="lista-mesas-juego"></ul>
+                <div class="input-group">
+                    <input type="text" id="nueva-mesa-input" placeholder="Nombre de la nueva mesa">
+                    <button class="btn btn-agregar" id="btn-agregar-mesa">Agregar</button>
+                </div>
             </div>
-            
+
             <div class="modal-seccion">
                 <h4>Colores de Ruletas:</h4>
-                
                 <div class="sub-seccion">
                     <h5>Ruleta 21, 24 y 25:</h5>
                     <div class="modal-botones-opciones">
@@ -450,8 +422,11 @@
                         <button class="btn-opcion" onclick="toggleCheckboxes('colores-ruleta-21', false)">Desmarcar todos</button>
                     </div>
                     <ul class="lista-opciones" id="lista-colores-21"></ul>
+                    <div class="input-group">
+                        <input type="text" id="nuevo-color-21-input" placeholder="Agregar nuevo color">
+                        <button class="btn btn-agregar" id="btn-agregar-color-21">Agregar</button>
+                    </div>
                 </div>
-
                 <div class="sub-seccion">
                     <h5>Ruleta 22:</h5>
                     <div class="modal-botones-opciones">
@@ -459,8 +434,11 @@
                         <button class="btn-opcion" onclick="toggleCheckboxes('colores-ruleta-22', false)">Desmarcar todos</button>
                     </div>
                     <ul class="lista-opciones" id="lista-colores-22"></ul>
+                    <div class="input-group">
+                        <input type="text" id="nuevo-color-22-input" placeholder="Agregar nuevo color">
+                        <button class="btn btn-agregar" id="btn-agregar-color-22">Agregar</button>
+                    </div>
                 </div>
-                
                 <div class="sub-seccion">
                     <h5>Ruleta 23:</h5>
                     <div class="modal-botones-opciones">
@@ -468,9 +446,12 @@
                         <button class="btn-opcion" onclick="toggleCheckboxes('colores-ruleta-23', false)">Desmarcar todos</button>
                     </div>
                     <ul class="lista-opciones" id="lista-colores-23"></ul>
+                    <div class="input-group">
+                        <input type="text" id="nuevo-color-23-input" placeholder="Agregar nuevo color">
+                        <button class="btn btn-agregar" id="btn-agregar-color-23">Agregar</button>
+                    </div>
                 </div>
             </div>
-            
             <button id="btn-cerrar-modal-configuracion" class="btn btn-cerrar">Cerrar</button>
         </div>
     </div>
@@ -482,189 +463,380 @@
     </footer>
 
     <script>
-        const todasLasMesas = [
+        // --- Variables de Datos y Mapeos ---
+        let todasLasMesas = [
             'Blackjack 17', 'Blackjack 15', 'Blackjack 34',
             'Draw-Poker 7', 'Draw-Poker 12', 'Hold\'em-Poker 8', 'Caribbean-Poker 13',
             'Ruleta 21', 'Ruleta 22', 'Ruleta 23', 'Ruleta 24', 'Ruleta 25'
         ];
-        
-        const coloresRuletaEspecial = ['Lila', 'Amarillo', 'Rojo', 'Verde', 'Azul', 'Plomo', 'Naranjo', 'Burdeo'];
-        const todosLosColoresEstandar = ['Amarillo', 'Verde', 'Azul', 'Celeste', 'Café', 'Negro', 'Burdeo', 'Rojo', 'Naranjo', 'Calipso', 'Gris'];
 
-        function generarSelectorMesas() {
-            const listaMesas = document.getElementById('lista-mesas-juego');
-            listaMesas.innerHTML = '';
-            
-            todasLasMesas.forEach(mesa => {
-                const li = crearCheckbox('mesas-en-juego', mesa);
-                listaMesas.appendChild(li);
-            });
-        }
+        let coloresRuletaEspecial = ['Lila', 'Amarillo', 'Rojo', 'Verde', 'Azul', 'Plomo', 'Naranjo', 'Burdeo'];
+        let todosLosColoresEstandar = ['Amarillo', 'Verde', 'Azul', 'Celeste', 'Café', 'Negro', 'Burdeo', 'Rojo', 'Naranjo', 'Calipso', 'Gris'];
         
-        function generarSelectorColores(listaId, colores, name) {
-            const listaColores = document.getElementById(listaId);
-            listaColores.innerHTML = '';
-            colores.forEach(color => {
-                const li = crearCheckbox(name, color);
-                listaColores.appendChild(li);
-            });
-        }
+        let colorMap = {
+            'lila': '#9B59B6', 'amarillo': '#F1C40F', 'rojo': '#E74C3C', 'verde': '#2ECC71',
+            'azul': '#3498DB', 'plomo': '#95A5A6', 'naranjo': '#E67E22', 'burdeo': '#9B59B6',
+            'celeste': '#3498DB', 'cafe': '#6F4E37', 'negro': '#000000', 'calipso': '#00A896',
+            'gris': '#7f8c8d', 'blanco': '#FFFFFF', 'marron': '#8B4513',
+            'morado': '#8E44AD'
+        };
 
-        function crearCheckbox(name, value) {
+        const listaColoresMap = {
+            'colores-ruleta-21': { lista: coloresRuletaEspecial, id: 'lista-colores-21' },
+            'colores-ruleta-22': { lista: todosLosColoresEstandar, id: 'lista-colores-22' },
+            'colores-ruleta-23': { lista: todosLosColoresEstandar, id: 'lista-colores-23' }
+        };
+
+        // --- Referencias a elementos del DOM ---
+        const cssSheet = document.getElementById('estilos-dinamicos');
+        const modalConfiguracion = document.getElementById('modal-configuracion');
+        const btnAbrirModalConfiguracion = document.getElementById('btn-configuracion-flotante');
+        const btnPremio = document.getElementById('btn-premio-confeti');
+        const btnCerrarModalConfiguracion = document.getElementById('btn-cerrar-modal-configuracion');
+        const btnCerrarModalX = document.querySelector('.close-btn');
+        const divResultado = document.getElementById('resultado-sorteo');
+        const confettiContainer = document.getElementById('confetti-container');
+
+        let sorteoEnCurso = false;
+        let confettiInterval;
+        let ultimoColorGanador = '';
+        let ultimaMesaGanadora = '';
+
+        // --- Funciones de almacenamiento local ---
+        const guardarDatos = () => {
+            const data = {
+                mesas: todasLasMesas,
+                colores21: listaColoresMap['colores-ruleta-21'].lista,
+                colores22: listaColoresMap['colores-ruleta-22'].lista,
+                colores23: listaColoresMap['colores-ruleta-23'].lista,
+                colorMap: colorMap,
+                checkedMesas: Array.from(document.querySelectorAll('input[name="mesas-en-juego"]:checked')).map(cb => cb.value),
+                checkedColores21: Array.from(document.querySelectorAll('input[name="colores-ruleta-21"]:checked')).map(cb => cb.value),
+                checkedColores22: Array.from(document.querySelectorAll('input[name="colores-ruleta-22"]:checked')).map(cb => cb.value),
+                checkedColores23: Array.from(document.querySelectorAll('input[name="colores-ruleta-23"]:checked')).map(cb => cb.value),
+            };
+            localStorage.setItem('mesasMillonariasData', JSON.stringify(data));
+        };
+
+        const cargarDatos = () => {
+            const storedData = localStorage.getItem('mesasMillonariasData');
+            if (storedData) {
+                const data = JSON.parse(storedData);
+                todasLasMesas = data.mesas || todasLasMesas;
+                listaColoresMap['colores-ruleta-21'].lista = data.colores21 || coloresRuletaEspecial;
+                listaColoresMap['colores-ruleta-22'].lista = data.colores22 || todosLosColoresEstandar;
+                listaColoresMap['colores-ruleta-23'].lista = data.colores23 || todosLosColoresEstandar;
+                colorMap = data.colorMap || colorMap;
+            }
+        };
+        
+        const aplicarSeleccionesGuardadas = () => {
+            const storedData = localStorage.getItem('mesasMillonariasData');
+            if (storedData) {
+                const data = JSON.parse(storedData);
+                document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+
+                if (data.checkedMesas) {
+                    data.checkedMesas.forEach(mesa => {
+                        const cb = document.querySelector(`input[name="mesas-en-juego"][value="${mesa}"]`);
+                        if (cb) cb.checked = true;
+                    });
+                }
+                
+                if (data.checkedColores21) {
+                    data.checkedColores21.forEach(color => {
+                        const cb = document.querySelector(`input[name="colores-ruleta-21"][value="${color}"]`);
+                        if (cb) cb.checked = true;
+                    });
+                }
+                if (data.checkedColores22) {
+                    data.checkedColores22.forEach(color => {
+                        const cb = document.querySelector(`input[name="colores-ruleta-22"][value="${color}"]`);
+                        if (cb) cb.checked = true;
+                    });
+                }
+                if (data.checkedColores23) {
+                    data.checkedColores23.forEach(color => {
+                        const cb = document.querySelector(`input[name="colores-ruleta-23"][value="${color}"]`);
+                        if (cb) cb.checked = true;
+                    });
+                }
+            }
+        };
+
+        // --- Funciones del DOM y Lógica de Sorteo ---
+        const formatColorName = (name) => name.toLowerCase().replace(/á/g, 'a').replace(/\s/g, '-');
+
+        const generarClasesColores = (colorName, hexCode) => {
+            const formattedName = formatColorName(colorName);
+            const newStyles = `
+                .color-${formattedName} { color: ${hexCode} !important; animation: iluminar-color-${formattedName} 1.5s infinite alternate; }
+                @keyframes iluminar-color-${formattedName} { from { text-shadow: 0 0 5px ${hexCode}; } to { text-shadow: 0 0 15px ${hexCode}, 0 0 25px ${hexCode}; } }
+            `;
+            if (!cssSheet.innerHTML.includes(`.color-${formattedName}`)) {
+                 cssSheet.innerHTML += newStyles;
+            }
+        };
+
+        const crearCheckbox = (name, value) => {
             const li = document.createElement('li');
             const label = document.createElement('label');
-
             const checkbox = document.createElement('input');
+            const formattedName = formatColorName(value);
+
             checkbox.type = 'checkbox';
-            checkbox.id = `${name}-${value.replace(/\s/g, '-').replace('\'', '').toLowerCase()}`;
+            checkbox.id = `${name}-${formattedName}`;
             checkbox.name = name;
             checkbox.value = value;
             checkbox.checked = true;
 
-            label.htmlFor = `${name}-${value.replace(/\s/g, '-').replace('\'', '').toLowerCase()}`;
+            label.htmlFor = `${name}-${formattedName}`;
             label.textContent = value;
+            
+            const hexColor = colorMap[formattedName] || '#ECF0F1';
+            
+            label.classList.add(`color-${formattedName}`);
+            label.style.color = hexColor;
 
-            li.appendChild(checkbox);
+            const btnEliminar = document.createElement('button');
+            btnEliminar.className = 'btn-eliminar';
+            btnEliminar.innerHTML = '&#x2715;';
+            btnEliminar.onclick = () => eliminarOpcion(name, value);
+            
+            label.prepend(checkbox);
             li.appendChild(label);
+            li.appendChild(btnEliminar);
             return li;
-        }
-        
-        function toggleCheckboxes(name, checked) {
-            const checkboxes = document.querySelectorAll(`input[name="${name}"]`);
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = checked;
-            });
-        }
-
-        generarSelectorMesas();
-        generarSelectorColores('lista-colores-21', coloresRuletaEspecial, 'colores-ruleta-21');
-        generarSelectorColores('lista-colores-22', todosLosColoresEstandar, 'colores-ruleta-22');
-        generarSelectorColores('lista-colores-23', todosLosColoresEstandar, 'colores-ruleta-23');
-
-        const modalConfiguracion = document.getElementById('modal-configuracion');
-        const btnAbrirModalConfiguracion = document.getElementById('btn-configuracion-flotante');
-        const btnCerrarModalConfiguracion = document.getElementById('btn-cerrar-modal-configuracion');
-        const btnCerrarModalX = document.querySelector('.close-btn');
-        const divResultado = document.getElementById('resultado-sorteo');
-        
-        let sorteoEnCurso = false;
-
-        const cerrarModal = () => {
-            modalConfiguracion.style.display = 'none';
         };
 
-        btnAbrirModalConfiguracion.addEventListener('click', (event) => {
-            event.stopPropagation();
-            modalConfiguracion.style.display = 'block';
-        });
+        const generarSelectores = (listId, dataArray, checkboxName) => {
+            const listaElement = document.getElementById(listId);
+            if (!listaElement) return;
+            listaElement.innerHTML = '';
+            dataArray.forEach(item => {
+                listaElement.appendChild(crearCheckbox(checkboxName, item));
+            });
+            guardarDatos();
+        };
 
-        btnCerrarModalConfiguracion.addEventListener('click', cerrarModal);
-        btnCerrarModalX.addEventListener('click', cerrarModal);
+        const toggleCheckboxes = (name, checked) => {
+            const checkboxes = document.querySelectorAll(`input[name="${name}"]`);
+            checkboxes.forEach(cb => { cb.checked = checked; });
+            guardarDatos();
+        };
 
-        window.addEventListener('click', (event) => {
-            if (!modalConfiguracion.contains(event.target) && !btnAbrirModalConfiguracion.contains(event.target)) {
-                 if (!sorteoEnCurso) {
-                    realizarSorteo();
+        const eliminarOpcion = (name, value) => {
+            if (name === 'mesas-en-juego') {
+                todasLasMesas = todasLasMesas.filter(mesa => mesa !== value);
+                generarSelectores('lista-mesas-juego', todasLasMesas, 'mesas-en-juego');
+            } else if (name.includes('colores')) {
+                const mapKey = listaColoresMap[name];
+                mapKey.lista = mapKey.lista.filter(color => color !== value);
+                generarSelectores(mapKey.id, mapKey.lista, name);
+            }
+        };
+
+        const agregarOpcion = (inputId, listId, checkboxName) => {
+            const inputElement = document.getElementById(inputId);
+            const newValue = inputElement.value.trim();
+
+            if (!newValue) {
+                alert('Por favor, ingresa un valor.');
+                return;
+            }
+            
+            const formattedValue = newValue.charAt(0).toUpperCase() + newValue.slice(1).toLowerCase();
+            let arrayToUpdate;
+
+            if (checkboxName === 'mesas-en-juego') {
+                arrayToUpdate = todasLasMesas;
+            } else {
+                arrayToUpdate = listaColoresMap[checkboxName].lista;
+            }
+
+            if (!arrayToUpdate.includes(formattedValue)) {
+                if (checkboxName.includes('colores')) {
+                    const formattedName = formatColorName(formattedValue);
+                    const hexColor = colorMap[formattedName] || '#ECF0F1';
+                    if (!colorMap[formattedName]) {
+                        // Asignar un color por defecto para que se pueda ver en la interfaz
+                        colorMap[formattedName] = '#ECF0F1';
+                    }
+                    generarClasesColores(formattedName, hexColor);
                 }
+                arrayToUpdate.push(formattedValue);
+                generarSelectores(listId, arrayToUpdate, checkboxName);
+            } else {
+                alert(`"${formattedValue}" ya existe en la lista.`);
             }
-        });
+            inputElement.value = '';
+        };
 
-        function lanzarConfeti() {
-            const confettiContainer = document.getElementById('confetti-container');
+        const crearConfettiParticula = () => {
+            const confetti = document.createElement('div');
+            confetti.classList.add('confetti');
             const colors = ['#f39c12', '#e74c3c', '#3498db', '#2ecc71', '#9b59b6'];
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.setProperty('--x', `${(Math.random() - 0.5) * 150}vw`);
+            confetti.style.setProperty('--x-end', `${(Math.random() - 0.5) * 200}vw`);
+            confetti.style.setProperty('--deg', `${Math.random() * 360}deg`);
+            confetti.style.setProperty('--deg-end', `${Math.random() * 360 * 2 + 360}deg`);
+            const duration = Math.random() * 3 + 4;
+            confetti.style.animationDuration = `${duration}s`;
+            confetti.style.animationDelay = `-${Math.random() * duration}s`;
+            confettiContainer.appendChild(confetti);
+            confetti.addEventListener('animationend', () => confetti.remove());
+        };
 
-            for (let i = 0; i < 50; i++) {
-                const confetti = document.createElement('div');
-                confetti.classList.add('confetti');
-                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                confetti.style.left = `${Math.random() * 100}vw`;
-                confetti.style.animationDelay = `${Math.random() * 0.5}s`;
-                confetti.style.setProperty('--x', `${(Math.random() - 0.5) * 200}px`);
-                confetti.style.setProperty('--deg', `${Math.random() * 360}deg`);
-                confettiContainer.appendChild(confetti);
-            }
-            setTimeout(() => {
-                confettiContainer.innerHTML = '';
-            }, 3000);
-        }
+        const iniciarConfetiContinuo = () => {
+            for (let i = 0; i < 50; i++) crearConfettiParticula();
+            confettiInterval = setInterval(crearConfettiParticula, 100);
+        };
 
-        function realizarSorteo() {
+        const detenerConfetiContinuo = () => {
+            clearInterval(confettiInterval);
+            confettiContainer.innerHTML = '';
+        };
+
+        const realizarSorteo = () => {
+            if (sorteoEnCurso) return;
             sorteoEnCurso = true;
+            detenerConfetiContinuo();
+            btnPremio.style.display = 'none';
             divResultado.classList.remove('resultado-ganador');
-            divResultado.innerHTML = '<p>El resultado aparecerá aquí.</p>';
+            divResultado.innerHTML = '<p>Realizando el sorteo...</p>';
+            divResultado.classList.add('girando');
 
             const mesasEnJuego = Array.from(document.querySelectorAll('input[name="mesas-en-juego"]:checked')).map(cb => cb.value);
 
             if (mesasEnJuego.length === 0) {
                 divResultado.innerHTML = '<p style="color: #e74c3c;">¡Error! Debes seleccionar al menos una mesa.</p>';
                 sorteoEnCurso = false;
+                divResultado.classList.remove('girando');
                 return;
             }
 
-            const indiceMesaGanadora = Math.floor(Math.random() * mesasEnJuego.length);
-            const mesaGanadora = mesasEnJuego[indiceMesaGanadora];
-
-            divResultado.innerHTML = `<p>Realizando el sorteo...</p>`;
-            divResultado.classList.add('girando');
-
+            ultimaMesaGanadora = mesasEnJuego[Math.floor(Math.random() * mesasEnJuego.length)];
             const tiempoSorteo = Math.floor(Math.random() * (5000 - 3000 + 1)) + 3000;
 
             setTimeout(() => {
                 divResultado.classList.remove('girando');
-                let className = '';
+                let colorGanador, className = '';
 
-                if (mesaGanadora.includes('Póker') || mesaGanadora.includes('Blackjack') || mesaGanadora.includes('Draw-Poker') || mesaGanadora.includes('Hold\'em-Poker') || mesaGanadora.includes('Caribbean-Poker')) {
-                    const numeroGanador = Math.floor(Math.random() * 6) + 1;
-                    divResultado.style.fontSize = '2em';
-                    divResultado.innerHTML = `<p>¡Mesa ganadora: **${mesaGanadora}**! Puesto: <span class="color-amarillo-brillante">**${numeroGanador}**</span></p>`;
-                } else if (mesaGanadora.includes('Ruleta')) {
+                if (ultimaMesaGanadora.includes('Ruleta')) {
                     let coloresParaSortear;
-                    if (mesaGanadora === 'Ruleta 21' || mesaGanadora === 'Ruleta 24' || mesaGanadora === 'Ruleta 25') {
-                        coloresParaSortear = Array.from(document.querySelectorAll('input[name="colores-ruleta-21"]:checked')).map(cb => cb.value);
-                    } else if (mesaGanadora === 'Ruleta 22') {
-                        coloresParaSortear = Array.from(document.querySelectorAll('input[name="colores-ruleta-22"]:checked')).map(cb => cb.value);
-                    } else if (mesaGanadora === 'Ruleta 23') {
-                        coloresParaSortear = Array.from(document.querySelectorAll('input[name="colores-ruleta-23"]:checked')).map(cb => cb.value);
+                    if (ultimaMesaGanadora.includes('21') || ultimaMesaGanadora.includes('24') || ultimaMesaGanadora.includes('25')) {
+                        coloresParaSortear = Array.from(document.querySelectorAll(`input[name="colores-ruleta-21"]:checked`)).map(cb => cb.value);
+                    } else if (ultimaMesaGanadora.includes('22')) {
+                        coloresParaSortear = Array.from(document.querySelectorAll(`input[name="colores-ruleta-22"]:checked`)).map(cb => cb.value);
+                    } else if (ultimaMesaGanadora.includes('23')) {
+                        coloresParaSortear = Array.from(document.querySelectorAll(`input[name="colores-ruleta-23"]:checked`)).map(cb => cb.value);
                     }
-
+                    
                     if (!coloresParaSortear || coloresParaSortear.length === 0) {
-                        divResultado.innerHTML = '<p style="color: #e74c3c;">¡Error! Debes seleccionar al menos un color para la ruleta seleccionada.</p>';
+                        divResultado.innerHTML = `<p style="color: #e74c3c;">¡Error! Debes seleccionar al menos un color para la **${ultimaMesaGanadora}**.</p>`;
                         sorteoEnCurso = false;
                         return;
                     }
 
-                    const indiceColorGanador = Math.floor(Math.random() * coloresParaSortear.length);
-                    const colorGanador = coloresParaSortear[indiceColorGanador];
-
-                    className = `color-${colorGanador.toLowerCase().replace(/á/g, 'a').replace(' ', '-')}`;
-
-                    divResultado.style.fontSize = '2em';
-                    divResultado.innerHTML = `<p>¡Mesa ganadora: **${mesaGanadora}**! Color: <span class="${className}">**${colorGanador}**</span></p>`;
+                    ultimoColorGanador = coloresParaSortear[Math.floor(Math.random() * coloresParaSortear.length)];
+                    className = `color-${formatColorName(ultimoColorGanador)}`;
+                    divResultado.innerHTML = `<p>¡Mesa ganadora: **${ultimaMesaGanadora}**! Color: <span class="${className}">**${ultimoColorGanador}**</span></p>`;
+                } else {
+                    const numeroGanador = Math.floor(Math.random() * 6) + 1;
+                    divResultado.innerHTML = `<p>¡Mesa ganadora: **${ultimaMesaGanadora}**! Puesto: <span class="color-amarillo">**${numeroGanador}**</span></p>`;
                 }
 
                 divResultado.classList.add('resultado-ganador');
-                lanzarConfeti();
+                iniciarConfetiContinuo();
+                
+                // Mostrar el botón de premio después del sorteo
+                btnPremio.style.display = 'block';
 
-                setTimeout(() => {
-                    const divPremio = document.createElement('p');
-                    divPremio.id = 'premio';
-                    divPremio.textContent = '¡100.000 en Fichas Promocionales!';
-                    if (className !== '') {
-                        divPremio.classList.add(className);
-                    }
-                    divResultado.appendChild(divPremio);
-
-                    const divCondicion = document.createElement('p');
-                    divCondicion.id = 'premio-condicion';
-                    divCondicion.textContent = 'Premio válido con tarjeta del casino.';
-                    divResultado.appendChild(divCondicion);
-                    
-                    sorteoEnCurso = false;
-
-                }, 5000);
-
+                sorteoEnCurso = false;
             }, tiempoSorteo);
-        }
+        };
+
+        const entregarPremio = () => {
+            let premioElement = document.getElementById('premio-mensaje');
+            let condicionElement = document.getElementById('condicion-mensaje');
+
+            if (!premioElement) {
+                premioElement = document.createElement('p');
+                premioElement.id = 'premio-mensaje';
+                divResultado.appendChild(premioElement);
+            }
+
+            if (!condicionElement) {
+                condicionElement = document.createElement('p');
+                condicionElement.id = 'condicion-mensaje';
+                divResultado.appendChild(condicionElement);
+            }
+
+            premioElement.textContent = '¡100.000 en Fichas Promocionales!';
+            premioElement.className = '';
+            if (ultimoColorGanador) {
+                const formattedName = formatColorName(ultimoColorGanador);
+                premioElement.classList.add(`color-${formattedName}`);
+            } else {
+                premioElement.classList.add('color-amarillo');
+            }
+
+            condicionElement.textContent = 'Premio válido con tarjeta del casino.';
+            
+            btnPremio.style.display = 'none'; // Ocultar el botón después de usarlo
+        };
+
+        btnPremio.addEventListener('click', entregarPremio);
+
+        btnAbrirModalConfiguracion.addEventListener('click', () => {
+            modalConfiguracion.style.display = 'block';
+        });
+
+        const cerrarModal = () => {
+            guardarDatos();
+            modalConfiguracion.style.display = 'none';
+        };
+
+        btnCerrarModalConfiguracion.addEventListener('click', cerrarModal);
+        btnCerrarModalX.addEventListener('click', cerrarModal);
+        
+        modalConfiguracion.addEventListener('change', (event) => {
+            if (event.target.type === 'checkbox') {
+                guardarDatos();
+            }
+        });
+
+        document.getElementById('btn-agregar-mesa').addEventListener('click', () => {
+            agregarOpcion('nueva-mesa-input', 'lista-mesas-juego', 'mesas-en-juego');
+        });
+        document.getElementById('btn-agregar-color-21').addEventListener('click', () => {
+            agregarOpcion('nuevo-color-21-input', 'lista-colores-21', 'colores-ruleta-21');
+        });
+        document.getElementById('btn-agregar-color-22').addEventListener('click', () => {
+            agregarOpcion('nuevo-color-22-input', 'lista-colores-22', 'colores-ruleta-22');
+        });
+        document.getElementById('btn-agregar-color-23').addEventListener('click', () => {
+            agregarOpcion('nuevo-color-23-input', 'lista-colores-23', 'colores-ruleta-23');
+        });
+
+        window.addEventListener('click', (event) => {
+            if (!modalConfiguracion.contains(event.target) && !btnAbrirModalConfiguracion.contains(event.target) && !btnPremio.contains(event.target) && !sorteoEnCurso) {
+                realizarSorteo();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            cargarDatos();
+            for (const colorName in colorMap) {
+                generarClasesColores(colorName, colorMap[colorName]);
+            }
+            generarSelectores('lista-mesas-juego', todasLasMesas, 'mesas-en-juego');
+            generarSelectores('lista-colores-21', listaColoresMap['colores-ruleta-21'].lista, 'colores-ruleta-21');
+            generarSelectores('lista-colores-22', listaColoresMap['colores-ruleta-22'].lista, 'colores-ruleta-22');
+            generarSelectores('lista-colores-23', listaColoresMap['colores-ruleta-23'].lista, 'colores-ruleta-23');
+            aplicarSeleccionesGuardadas();
+        });
     </script>
 </body>
 </html>
