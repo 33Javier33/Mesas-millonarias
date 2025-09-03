@@ -73,22 +73,12 @@
         .btn:hover:not(:disabled) { background-color: #34495e; }
         .btn:disabled { background-color: #555; cursor: not-allowed; opacity: 0.6; }
 
-        /* NUEVO: Estilo para el botón de iniciar sorteo */
-        #btn-iniciar-sorteo {
-            background-color: #27ae60;
-        }
-        #btn-iniciar-sorteo:hover:not(:disabled) {
-            background-color: #2ecc71;
-        }
-
-        #btn-premio {
-            font-size: 1.8em;
-            padding: 5px 12px;
-            background-color: #e67e22;
-        }
+        #btn-iniciar-sorteo { background-color: #27ae60; }
+        #btn-iniciar-sorteo:hover:not(:disabled) { background-color: #2ecc71; }
+        #btn-premio { font-size: 1.8em; padding: 5px 12px; background-color: #e67e22; }
         #btn-premio:hover:not(:disabled) { background-color: #d35400; }
 
-        /* Estilos de la configuración (listas, inputs) */
+        /* Estilos de la configuración */
         .lista-opciones { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; list-style: none; padding: 0; margin: 0; }
         .lista-opciones label { background-color: #34495e; padding: 10px; border-radius: 5px; cursor: pointer; transition: background-color 0.2s; text-align: left; display: flex; align-items: center; box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); }
         .lista-opciones label:hover { background-color: #4a627d; }
@@ -113,7 +103,6 @@
             <h4>Control de Pantalla de Sorteo</h4>
             <div class="control-botones">
                 <button id="btn-lanzar-pantalla" class="btn">Lanzar Pantalla</button>
-                <!-- NUEVO: Botón para iniciar el sorteo remotamente -->
                 <button id="btn-iniciar-sorteo" class="btn" title="Iniciar Sorteo" disabled>▶️ Iniciar Sorteo</button>
                 <button id="btn-premio" class="btn" title="Entregar Premio" disabled>🎉</button>
                 <span id="status-pantalla" class="desconectado">Desconectado</span>
@@ -123,7 +112,6 @@
             </p>
         </div>
 
-        <!-- El resto del HTML de configuración no cambia -->
         <div class="config-seccion">
             <h4>Mesas en juego:</h4>
             <div class="botones-opciones">
@@ -149,17 +137,30 @@
                     <input type="color" id="nuevo-color-hex-21-input" value="#e66465">
                     <button class="btn btn-agregar" id="btn-agregar-color-21">Agregar</button>
                 </div>
-                <h5>Ruleta 22 y 23 (Comparten colores):</h5>
-                 <div class="botones-opciones">
-                    <button class="btn-opcion" onclick="toggleCheckboxes('colores-ruleta-22-23', true)">Seleccionar todos</button>
-                    <button class="btn-opcion" onclick="toggleCheckboxes('colores-ruleta-22-23', false)">Desmarcar todos</button>
-                </div>
-                <ul class="lista-opciones" id="lista-colores-22-23"></ul>
-                <div class="input-group">
-                    <input type="text" id="nuevo-color-nombre-22-23-input" placeholder="Nombre del color">
-                    <input type="color" id="nuevo-color-hex-22-23-input" value="#f6b73c">
-                    <button class="btn btn-agregar" id="btn-agregar-color-22-23">Agregar</button>
-                </div>
+            <!-- SECCIÓN SEPARADA PARA RULETA 22 -->
+            <h5>Ruleta 22:</h5>
+            <div class="botones-opciones">
+                <button class="btn-opcion" onclick="toggleCheckboxes('colores-ruleta-22', true)">Seleccionar todos</button>
+                <button class="btn-opcion" onclick="toggleCheckboxes('colores-ruleta-22', false)">Desmarcar todos</button>
+            </div>
+            <ul class="lista-opciones" id="lista-colores-22"></ul>
+            <div class="input-group">
+                <input type="text" id="nuevo-color-nombre-22-input" placeholder="Nombre del color">
+                <input type="color" id="nuevo-color-hex-22-input" value="#f6b73c">
+                <button class="btn btn-agregar" id="btn-agregar-color-22">Agregar</button>
+            </div>
+            <!-- SECCIÓN SEPARADA PARA RULETA 23 -->
+            <h5>Ruleta 23:</h5>
+            <div class="botones-opciones">
+                <button class="btn-opcion" onclick="toggleCheckboxes('colores-ruleta-23', true)">Seleccionar todos</button>
+                <button class="btn-opcion" onclick="toggleCheckboxes('colores-ruleta-23', false)">Desmarcar todos</button>
+            </div>
+            <ul class="lista-opciones" id="lista-colores-23"></ul>
+            <div class="input-group">
+                <input type="text" id="nuevo-color-nombre-23-input" placeholder="Nombre del color">
+                <input type="color" id="nuevo-color-hex-23-input" value="#563cf6">
+                <button class="btn btn-agregar" id="btn-agregar-color-23">Agregar</button>
+            </div>
         </div>
         <button id="btn-guardar" class="btn btn-guardar">Guardar y Sincronizar</button>
     </div>
@@ -169,105 +170,123 @@
         const btnLanzar = document.getElementById('btn-lanzar-pantalla');
         const btnPremio = document.getElementById('btn-premio');
         const statusPantalla = document.getElementById('status-pantalla');
-        // NUEVO: Referencia al nuevo botón
         const btnIniciarSorteo = document.getElementById('btn-iniciar-sorteo');
 
         const defaultData = {
             mesas: [ 'Blackjack 17', 'Blackjack 15', 'Blackjack 34', 'Draw-Poker 7', 'Draw-Poker 12', 'Hold\'em-Poker 8', 'Caribbean-Poker 13', 'Ruleta 21', 'Ruleta 22', 'Ruleta 23', 'Ruleta 24', 'Ruleta 25' ],
             colores21: ['Lila', 'Amarillo', 'Rojo', 'Verde', 'Azul', 'Plomo', 'Naranjo', 'Burdeo'],
-            colores22_23: ['Amarillo', 'Verde', 'Azul', 'Celeste', 'Café', 'Negro', 'Burdeo', 'Rojo', 'Naranjo', 'Calipso', 'Gris'],
-            colorMap: { 'lila': '#9B59B6', 'amarillo': '#F1C40F', 'rojo': '#E74C3C', 'verde': '#2ECC71', 'azul': '#3498DB', 'plomo': '#95A5A6', 'naranjo': '#E67E22', 'burdeo': '#C0392B', 'celeste': '#5DADE2', 'cafe': '#A0522D', 'negro': '#000000', 'calipso': '#00A896', 'gris': '#7f8c8d', 'blanco': '#FFFFFF', 'marron': '#8B4513', 'morado': '#8E44AD' }
+            colores22: ['Amarillo', 'Verde', 'Azul', 'Celeste', 'Café', 'Negro', 'Burdeo', 'Rojo', 'Naranjo', 'Calipso', 'Gris'],
+            colores23: ['Amarillo', 'Verde', 'Azul', 'Celeste', 'Café', 'Negro', 'Burdeo', 'Rojo', 'Naranjo', 'Calipso', 'Gris'],
+            colorMap: { 'lila': '#9B59B6', 'amarillo': '#F1C40F', 'rojo': '#E74C3C', 'verde': '#2ECC71', 'azul': '#3498DB', 'plomo': '#95A5A6', 'naranjo': '#E67E22', 'burdeo': '#C0392B', 'celeste': '#5DADE2', 'cafe': '#A0522D', 'negro': '#000000', 'calipso': '#00A896', 'gris': '#7f8c8d' }
         };
 
-        let todasLasMesas, coloresRuleta21, coloresRuleta22_23, colorMap;
+        let todasLasMesas, coloresRuleta21, coloresRuleta22, coloresRuleta23, colorMap;
 
-        function lanzarPantallaSorteo() {
-            if (sorteoWindow && !sorteoWindow.closed) {
-                sorteoWindow.focus();
-                return;
-            }
-            sorteoWindow = window.open('sorteo.html', 'Sorteo', 'fullscreen=yes,menubar=no,toolbar=no,location=no,status=no');
-             if (!sorteoWindow) {
-                alert("El navegador bloqueó la ventana emergente.");
-                return;
-            }
-            actualizarStatusPantalla();
-        }
-
-        function actualizarStatusPantalla() {
-            if (sorteoWindow && !sorteoWindow.closed) {
-                statusPantalla.textContent = 'Conectado';
-                statusPantalla.className = 'conectado';
-                btnLanzar.textContent = 'Enfocar Pantalla';
-                // NUEVO: Habilitar el botón de iniciar sorteo cuando está conectado
-                btnIniciarSorteo.disabled = false;
-            } else {
-                statusPantalla.textContent = 'Desconectado';
-                statusPantalla.className = 'desconectado';
-                btnLanzar.textContent = 'Lanzar Pantalla';
-                btnPremio.disabled = true;
-                // NUEVO: Deshabilitar también el botón de iniciar
-                btnIniciarSorteo.disabled = true;
-                sorteoWindow = null;
-            }
-        }
-        
-        window.sorteoTerminado = function() {
-            btnPremio.disabled = false;
-            // NUEVO: Re-habilitar el botón de iniciar para el próximo sorteo
-            btnIniciarSorteo.disabled = false;
-        }
-
-        function entregarPremio() {
-            if (sorteoWindow && !sorteoWindow.closed) {
-                sorteoWindow.entregarPremio();
-                btnPremio.disabled = true;
-            } else {
-                alert('La pantalla de sorteo no está abierta.');
-            }
-        }
-
-        // NUEVO: Función para iniciar el sorteo desde el panel
-        function iniciarSorteoRemoto() {
-            if (sorteoWindow && !sorteoWindow.closed) {
-                sorteoWindow.iniciarSorteoRemoto(); // Llama a la nueva función en sorteo.html
-                // Deshabilitar botones mientras el sorteo está en curso
-                btnPremio.disabled = true;
-                btnIniciarSorteo.disabled = true;
-            } else {
-                alert('La pantalla de sorteo no está abierta.');
-            }
-        }
-
+        // --- Lógica de Control de Ventana (sin cambios) ---
+        function lanzarPantallaSorteo() { if (sorteoWindow && !sorteoWindow.closed) { sorteoWindow.focus(); return; } sorteoWindow = window.open('sorteo.html', 'Sorteo', 'fullscreen=yes,menubar=no,toolbar=no,location=no,status=no'); if (!sorteoWindow) { alert("El navegador bloqueó la ventana emergente."); return; } actualizarStatusPantalla(); }
+        function actualizarStatusPantalla() { if (sorteoWindow && !sorteoWindow.closed) { statusPantalla.textContent = 'Conectado'; statusPantalla.className = 'conectado'; btnLanzar.textContent = 'Enfocar Pantalla'; btnIniciarSorteo.disabled = false; } else { statusPantalla.textContent = 'Desconectado'; statusPantalla.className = 'desconectado'; btnLanzar.textContent = 'Lanzar Pantalla'; btnPremio.disabled = true; btnIniciarSorteo.disabled = true; sorteoWindow = null; } }
+        window.sorteoTerminado = function() { btnPremio.disabled = false; btnIniciarSorteo.disabled = false; }
+        function entregarPremio() { if (sorteoWindow && !sorteoWindow.closed) { sorteoWindow.entregarPremio(); btnPremio.disabled = true; } else { alert('La pantalla de sorteo no está abierta.'); } }
+        function iniciarSorteoRemoto() { if (sorteoWindow && !sorteoWindow.closed) { sorteoWindow.iniciarSorteoRemoto(); btnPremio.disabled = true; btnIniciarSorteo.disabled = true; } else { alert('La pantalla de sorteo no está abierta.'); } }
         setInterval(actualizarStatusPantalla, 1000);
 
-        // --- El resto del JS de configuración no cambia ---
-        const guardarDatos = () => { /* ...código sin cambios... */ const data = { mesas: todasLasMesas, colores21: coloresRuleta21, colores22: coloresRuleta22_23, colores23: coloresRuleta22_23, colorMap: colorMap, checkedMesas: Array.from(document.querySelectorAll('input[name="mesas-en-juego"]:checked')).map(cb => cb.value), checkedColores21: Array.from(document.querySelectorAll('input[name="colores-ruleta-21"]:checked')).map(cb => cb.value), checkedColores22: Array.from(document.querySelectorAll('input[name="colores-ruleta-22-23"]:checked')).map(cb => cb.value), checkedColores23: Array.from(document.querySelectorAll('input[name="colores-ruleta-22-23"]:checked')).map(cb => cb.value), }; localStorage.setItem('mesasMillonariasData', JSON.stringify(data)); if (sorteoWindow && !sorteoWindow.closed) { sorteoWindow.location.reload(); } alert('¡Configuración guardada y sincronizada!'); };
-        const cargarDatos = () => { /* ...código sin cambios... */ const storedData = localStorage.getItem('mesasMillonariasData'); const data = storedData ? JSON.parse(storedData) : defaultData; todasLasMesas = data.mesas || defaultData.mesas; coloresRuleta21 = data.colores21 || defaultData.colores21; coloresRuleta22_23 = data.colores22_23 || data.colores22 || defaultData.colores22_23; colorMap = data.colorMap || defaultData.colorMap; };
-        const aplicarSeleccionesGuardadas = () => { /* ...código sin cambios... */ const storedData = localStorage.getItem('mesasMillonariasData'); document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false); if (storedData) { const data = JSON.parse(storedData); (data.checkedMesas || []).forEach(val => { const cb = document.querySelector(`input[name="mesas-en-juego"][value="${val}"]`); if (cb) cb.checked = true; }); (data.checkedColores21 || []).forEach(val => { const cb = document.querySelector(`input[name="colores-ruleta-21"][value="${val}"]`); if (cb) cb.checked = true; }); const colores22_23_checked = data.checkedColores22 || data.checkedColores23 || []; colores22_23_checked.forEach(val => { const cb = document.querySelector(`input[name="colores-ruleta-22-23"][value="${val}"]`); if (cb) cb.checked = true; }); } else { document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = true); } };
+        const guardarDatos = () => {
+            const data = {
+                mesas: todasLasMesas,
+                colores21: coloresRuleta21,
+                colores22: coloresRuleta22, // Guardado por separado
+                colores23: coloresRuleta23, // Guardado por separado
+                colorMap: colorMap,
+                checkedMesas: Array.from(document.querySelectorAll('input[name="mesas-en-juego"]:checked')).map(cb => cb.value),
+                checkedColores21: Array.from(document.querySelectorAll('input[name="colores-ruleta-21"]:checked')).map(cb => cb.value),
+                checkedColores22: Array.from(document.querySelectorAll('input[name="colores-ruleta-22"]:checked')).map(cb => cb.value),
+                checkedColores23: Array.from(document.querySelectorAll('input[name="colores-ruleta-23"]:checked')).map(cb => cb.value),
+            };
+            localStorage.setItem('mesasMillonariasData', JSON.stringify(data));
+            if (sorteoWindow && !sorteoWindow.closed) {
+                sorteoWindow.location.reload();
+            }
+            alert('¡Configuración guardada y sincronizada!');
+        };
+
+        const cargarDatos = () => {
+            const storedData = localStorage.getItem('mesasMillonariasData');
+            const data = storedData ? JSON.parse(storedData) : defaultData;
+            todasLasMesas = data.mesas || defaultData.mesas;
+            coloresRuleta21 = data.colores21 || defaultData.colores21;
+            coloresRuleta22 = data.colores22 || defaultData.colores22;
+            coloresRuleta23 = data.colores23 || defaultData.colores23;
+            colorMap = data.colorMap || defaultData.colorMap;
+        };
+        
+        const aplicarSeleccionesGuardadas = () => {
+            const storedData = localStorage.getItem('mesasMillonariasData');
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            if (storedData) {
+                const data = JSON.parse(storedData);
+                (data.checkedMesas || []).forEach(val => { const cb = document.querySelector(`input[name="mesas-en-juego"][value="${val}"]`); if (cb) cb.checked = true; });
+                (data.checkedColores21 || []).forEach(val => { const cb = document.querySelector(`input[name="colores-ruleta-21"][value="${val}"]`); if (cb) cb.checked = true; });
+                (data.checkedColores22 || []).forEach(val => { const cb = document.querySelector(`input[name="colores-ruleta-22"][value="${val}"]`); if (cb) cb.checked = true; });
+                (data.checkedColores23 || []).forEach(val => { const cb = document.querySelector(`input[name="colores-ruleta-23"][value="${val}"]`); if (cb) cb.checked = true; });
+            } else {
+                 document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = true);
+            }
+        };
+
         const formatColorName = (name) => { if (typeof name !== 'string') return ''; return name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-'); };
         const crearCheckbox = (name, value) => { const li = document.createElement('li'); const label = document.createElement('label'); const checkbox = document.createElement('input'); checkbox.type = 'checkbox'; checkbox.name = name; checkbox.value = value; label.textContent = value; if (name.includes('colores')) { const hexColor = colorMap[formatColorName(value)] || '#ECF0F1'; label.style.color = hexColor; label.style.textShadow = '0 0 3px rgba(0,0,0,0.7)'; } const btnEliminar = document.createElement('button'); btnEliminar.className = 'btn-eliminar'; btnEliminar.innerHTML = '&#x2715;'; btnEliminar.title = `Eliminar "${value}"`; btnEliminar.onclick = (e) => { e.stopPropagation(); e.preventDefault(); eliminarOpcion(name, value); }; label.prepend(checkbox); li.appendChild(label); li.appendChild(btnEliminar); return li; };
-        const generarSelectores = (listId, dataArray, checkboxName) => {  const listaElement = document.getElementById(listId);  listaElement.innerHTML = '';  dataArray.forEach(item => listaElement.appendChild(crearCheckbox(checkboxName, item)));  };
+        const generarSelectores = (listId, dataArray, checkboxName) => { const listaElement = document.getElementById(listId); listaElement.innerHTML = ''; dataArray.forEach(item => listaElement.appendChild(crearCheckbox(checkboxName, item))); };
         const toggleCheckboxes = (name, checked) => { document.querySelectorAll(`input[name="${name}"]`).forEach(cb => { cb.checked = checked; }); };
-        const eliminarOpcion = (name, value) => { if (!confirm(`¿Estás seguro de que quieres eliminar "${value}" permanentemente?`)) return; if (name === 'mesas-en-juego') { todasLasMesas = todasLasMesas.filter(m => m !== value); generarSelectores('lista-mesas-juego', todasLasMesas, name); } else if (name === 'colores-ruleta-21') { coloresRuleta21 = coloresRuleta21.filter(c => c !== value); generarSelectores('lista-colores-21', coloresRuleta21, name); } else if (name === 'colores-ruleta-22-23') { coloresRuleta22_23 = coloresRuleta22_23.filter(c => c !== value); generarSelectores('lista-colores-22-23', coloresRuleta22_23, name); } };
-        const agregarOpcion = (listId, checkboxName, nombreInputId, hexInputId) => { const nombreInputElement = document.getElementById(nombreInputId); const newValue = nombreInputElement.value.trim(); if (!newValue) { alert('Por favor, ingresa un valor.'); return; } const formattedValue = newValue.charAt(0).toUpperCase() + newValue.slice(1); let arrayToUpdate; if (checkboxName === 'mesas-en-juego') arrayToUpdate = todasLasMesas; else if (checkboxName === 'colores-ruleta-21') arrayToUpdate = coloresRuleta21; else if (checkboxName === 'colores-ruleta-22-23') arrayToUpdate = coloresRuleta22_23; if (arrayToUpdate.find(item => item.toLowerCase() === formattedValue.toLowerCase())) { alert(`"${formattedValue}" ya existe.`); return; } if (hexInputId) { const hexValue = document.getElementById(hexInputId).value; colorMap[formatColorName(formattedValue)] = hexValue; } arrayToUpdate.push(formattedValue); generarSelectores(listId, arrayToUpdate, checkboxName); nombreInputElement.value = ''; };
+        
+        const eliminarOpcion = (name, value) => {
+            if (!confirm(`¿Estás seguro de que quieres eliminar "${value}" permanentemente?`)) return;
+            let arrayToUpdate, listId;
+            if (name === 'mesas-en-juego') { arrayToUpdate = todasLasMesas; listId = 'lista-mesas-juego'; }
+            else if (name === 'colores-ruleta-21') { arrayToUpdate = coloresRuleta21; listId = 'lista-colores-21'; }
+            else if (name === 'colores-ruleta-22') { arrayToUpdate = coloresRuleta22; listId = 'lista-colores-22'; }
+            else if (name === 'colores-ruleta-23') { arrayToUpdate = coloresRuleta23; listId = 'lista-colores-23'; }
+            
+            if (arrayToUpdate) {
+                const index = arrayToUpdate.indexOf(value);
+                if (index > -1) arrayToUpdate.splice(index, 1);
+                generarSelectores(listId, arrayToUpdate, name);
+            }
+        };
+
+        const agregarOpcion = (listId, checkboxName, dataArray, nombreInputId, hexInputId) => {
+            const nombreInputElement = document.getElementById(nombreInputId);
+            const newValue = nombreInputElement.value.trim();
+            if (!newValue) { alert('Por favor, ingresa un valor.'); return; }
+            const formattedValue = newValue.charAt(0).toUpperCase() + newValue.slice(1);
+
+            if (dataArray.find(item => item.toLowerCase() === formattedValue.toLowerCase())) {
+                alert(`"${formattedValue}" ya existe.`); return;
+            }
+            if (hexInputId) {
+                const hexValue = document.getElementById(hexInputId).value;
+                colorMap[formatColorName(formattedValue)] = hexValue;
+            }
+            dataArray.push(formattedValue);
+            generarSelectores(listId, dataArray, checkboxName);
+            nombreInputElement.value = '';
+        };
 
         // --- Event Listeners ---
         btnLanzar.addEventListener('click', lanzarPantallaSorteo);
         btnPremio.addEventListener('click', entregarPremio);
-        // NUEVO: Listener para el botón de iniciar sorteo
         btnIniciarSorteo.addEventListener('click', iniciarSorteoRemoto);
         document.getElementById('btn-guardar').addEventListener('click', guardarDatos);
-        document.getElementById('btn-agregar-mesa').addEventListener('click', () => agregarOpcion('lista-mesas-juego', 'mesas-en-juego', 'nueva-mesa-input'));
-        document.getElementById('btn-agregar-color-21').addEventListener('click', () => agregarOpcion('lista-colores-21', 'colores-ruleta-21', 'nuevo-color-nombre-21-input', 'nuevo-color-hex-21-input'));
-        document.getElementById('btn-agregar-color-22-23').addEventListener('click', () => agregarOpcion('lista-colores-22-23', 'colores-ruleta-22-23', 'nuevo-color-nombre-22-23-input', 'nuevo-color-hex-22-23-input'));
+        document.getElementById('btn-agregar-mesa').addEventListener('click', () => agregarOpcion('lista-mesas-juego', 'mesas-en-juego', todasLasMesas, 'nueva-mesa-input'));
+        document.getElementById('btn-agregar-color-21').addEventListener('click', () => agregarOpcion('lista-colores-21', 'colores-ruleta-21', coloresRuleta21, 'nuevo-color-nombre-21-input', 'nuevo-color-hex-21-input'));
+        document.getElementById('btn-agregar-color-22').addEventListener('click', () => agregarOpcion('lista-colores-22', 'colores-ruleta-22', coloresRuleta22, 'nuevo-color-nombre-22-input', 'nuevo-color-hex-22-input'));
+        document.getElementById('btn-agregar-color-23').addEventListener('click', () => agregarOpcion('lista-colores-23', 'colores-ruleta-23', coloresRuleta23, 'nuevo-color-nombre-23-input', 'nuevo-color-hex-23-input'));
         
-        // --- Inicialización ---
         document.addEventListener('DOMContentLoaded', () => {
             cargarDatos();
             generarSelectores('lista-mesas-juego', todasLasMesas, 'mesas-en-juego');
             generarSelectores('lista-colores-21', coloresRuleta21, 'colores-ruleta-21');
-            generarSelectores('lista-colores-22-23', coloresRuleta22_23, 'colores-ruleta-22-23');
+            generarSelectores('lista-colores-22', coloresRuleta22, 'colores-ruleta-22');
+            generarSelectores('lista-colores-23', coloresRuleta23, 'colores-ruleta-23');
             aplicarSeleccionesGuardadas();
             actualizarStatusPantalla();
         });
