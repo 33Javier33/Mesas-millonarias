@@ -88,10 +88,10 @@
         let ultimoColorGanador = '';
         let datosSorteo = {};
 
-        const formatColorName = (name) => { /* ...código sin cambios... */ if (typeof name !== 'string') return ''; return name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-'); };
-        const generarClasesColores = (colorName, hexCode) => { /* ...código sin cambios... */ const formattedName = formatColorName(colorName); if(hexCode && !cssSheet.innerHTML.includes(`.color-${formattedName}`)){ cssSheet.innerHTML += ` .color-${formattedName} { color: ${hexCode} !important; text-shadow: 0 0 2px ${hexCode}; animation: iluminar-color-${formattedName} 1.5s infinite alternate; } @keyframes iluminar-color-${formattedName} { from { text-shadow: 0 0 5px ${hexCode}, 0 0 10px ${hexCode}; } to { text-shadow: 0 0 15px ${hexCode}, 0 0 25px ${hexCode}; } }`; } };
-        const cargarDatos = () => { /* ...código sin cambios... */ const storedData = localStorage.getItem('mesasMillonariasData'); if (storedData) { datosSorteo = JSON.parse(storedData); if (datosSorteo.colorMap) { Object.entries(datosSorteo.colorMap).forEach(([key, value]) => { const originalName = Object.keys(datosSorteo.colorMap).find(k => formatColorName(k) === key) || key; generarClasesColores(originalName, value); }); } } else { divResultado.innerHTML = '<p style="color: #f39c12;">Esperando configuración desde el panel de control...</p>'; } };
-        const crearConfettiParticula = () => { /* ...código sin cambios... */ const confetti = document.createElement('div'); confetti.classList.add('confetti'); const colors = ['#f39c12', '#e74c3c', '#3498db', '#2ecc71', '#9b59b6']; confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)]; confetti.style.setProperty('--x', `${(Math.random() - 0.5) * 150}vw`); confetti.style.setProperty('--x-end', `${(Math.random() - 0.5) * 200}vw`); confetti.style.setProperty('--deg', `${Math.random() * 360}deg`); confetti.style.setProperty('--deg-end', `${Math.random() * 360 * 2 + 360}deg`); const duration = Math.random() * 3 + 4; confetti.style.animationDuration = `${duration}s`; confetti.style.animationDelay = `-${Math.random() * duration}s`; confettiContainer.appendChild(confetti); confetti.addEventListener('animationend', () => confetti.remove()); };
+        const formatColorName = (name) => { if (typeof name !== 'string') return ''; return name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-'); };
+        const generarClasesColores = (colorName, hexCode) => { const formattedName = formatColorName(colorName); if(hexCode && !cssSheet.innerHTML.includes(`.color-${formattedName}`)){ cssSheet.innerHTML += ` .color-${formattedName} { color: ${hexCode} !important; text-shadow: 0 0 2px ${hexCode}; animation: iluminar-color-${formattedName} 1.5s infinite alternate; } @keyframes iluminar-color-${formattedName} { from { text-shadow: 0 0 5px ${hexCode}, 0 0 10px ${hexCode}; } to { text-shadow: 0 0 15px ${hexCode}, 0 0 25px ${hexCode}; } }`; } };
+        const cargarDatos = () => { const storedData = localStorage.getItem('mesasMillonariasData'); if (storedData) { datosSorteo = JSON.parse(storedData); if (datosSorteo.colorMap) { Object.entries(datosSorteo.colorMap).forEach(([key, value]) => { const originalName = Object.keys(datosSorteo.colorMap).find(k => formatColorName(k) === key) || key; generarClasesColores(originalName, value); }); } } else { divResultado.innerHTML = '<p style="color: #f39c12;">Esperando configuración desde el panel de control...</p>'; } };
+        const crearConfettiParticula = () => { const confetti = document.createElement('div'); confetti.classList.add('confetti'); const colors = ['#f39c12', '#e74c3c', '#3498db', '#2ecc71', '#9b59b6']; confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)]; confetti.style.setProperty('--x', `${(Math.random() - 0.5) * 150}vw`); confetti.style.setProperty('--x-end', `${(Math.random() - 0.5) * 200}vw`); confetti.style.setProperty('--deg', `${Math.random() * 360}deg`); confetti.style.setProperty('--deg-end', `${Math.random() * 360 * 2 + 360}deg`); const duration = Math.random() * 3 + 4; confetti.style.animationDuration = `${duration}s`; confetti.style.animationDelay = `-${Math.random() * duration}s`; confettiContainer.appendChild(confetti); confetti.addEventListener('animationend', () => confetti.remove()); };
         const iniciarConfetiContinuo = () => { for (let i = 0; i < 50; i++) crearConfettiParticula(); confettiInterval = setInterval(crearConfettiParticula, 100); };
         const detenerConfetiContinuo = () => { clearInterval(confettiInterval); confettiContainer.innerHTML = ''; };
 
@@ -119,9 +119,14 @@
                 divResultado.classList.remove('girando');
                 if (ultimaMesaGanadora.includes('Ruleta')) {
                     let coloresParaSortear;
-                    if (ultimaMesaGanadora.includes('21') || ultimaMesaGanadora.includes('24') || ultimaMesaGanadora.includes('25')) { coloresParaSortear = datosSorteo.checkedColores21 || [];
-                    } else if (ultimaMesaGanadora.includes('22')) { coloresParaSortear = datosSorteo.checkedColores22 || [];
-                    } else if (ultimaMesaGanadora.includes('23')) { coloresParaSortear = datosSorteo.checkedColores23 || []; }
+                    // LÓGICA CORREGIDA PARA USAR LISTAS SEPARADAS
+                    if (ultimaMesaGanadora.includes('21') || ultimaMesaGanadora.includes('24') || ultimaMesaGanadora.includes('25')) {
+                        coloresParaSortear = datosSorteo.checkedColores21 || [];
+                    } else if (ultimaMesaGanadora.includes('22')) {
+                        coloresParaSortear = datosSorteo.checkedColores22 || [];
+                    } else if (ultimaMesaGanadora.includes('23')) {
+                        coloresParaSortear = datosSorteo.checkedColores23 || [];
+                    }
                     
                     if (!coloresParaSortear || coloresParaSortear.length === 0) { divResultado.innerHTML = `<p style="color: #e74c3c;">¡Error! Faltan colores para la <strong>${ultimaMesaGanadora}</strong>.</p>`; sorteoEnCurso = false; return; }
 
@@ -143,10 +148,8 @@
             }, tiempoSorteo);
         };
 
-        // Función para entregar premio (llamada desde el panel)
-        window.entregarPremio = function() { /* ...código sin cambios... */ let premioElement = document.getElementById('premio-mensaje'); let condicionElement = document.getElementById('condicion-mensaje'); if (!premioElement) { premioElement = document.createElement('p'); premioElement.id = 'premio-mensaje'; divResultado.appendChild(premioElement); } if (!condicionElement) { condicionElement = document.createElement('p'); condicionElement.id = 'condicion-mensaje'; divResultado.appendChild(condicionElement); } premioElement.textContent = '¡100.000 en Fichas Promocionales!'; premioElement.className = ''; premioElement.classList.add(ultimoColorGanador ? `color-${formatColorName(ultimoColorGanador)}` : 'color-amarillo'); condicionElement.textContent = 'Premio válido con tarjeta del casino.'; };
+        window.entregarPremio = function() { let premioElement = document.getElementById('premio-mensaje'); let condicionElement = document.getElementById('condicion-mensaje'); if (!premioElement) { premioElement = document.createElement('p'); premioElement.id = 'premio-mensaje'; divResultado.appendChild(premioElement); } if (!condicionElement) { condicionElement = document.createElement('p'); condicionElement.id = 'condicion-mensaje'; divResultado.appendChild(condicionElement); } premioElement.textContent = '¡100.000 en Fichas Promocionales!'; premioElement.className = ''; premioElement.classList.add(ultimoColorGanador ? `color-${formatColorName(ultimoColorGanador)}` : 'color-amarillo'); condicionElement.textContent = 'Premio válido con tarjeta del casino.'; };
         
-        // NUEVO: Función para iniciar el sorteo (llamada desde el panel)
         window.iniciarSorteoRemoto = function() {
             realizarSorteo();
         };
@@ -156,7 +159,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             cargarDatos();
         });
-
     </script>
 </body>
 </html>
