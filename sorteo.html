@@ -20,6 +20,19 @@
             overflow: hidden;
             cursor: pointer;
         }
+        .imagen-esquina {
+            position: absolute;
+            top: 0; /* Pegado al borde superior */
+            width: auto;
+            height: 90px; /* Altura de la imagen */
+            z-index: 1; /* Se posiciona detrás del contenedor del sorteo */
+        }
+        .imagen-izquierda {
+            left: 0; /* Pegado al borde izquierdo */
+        }
+        .imagen-derecha {
+            right: 0; /* Pegado al borde derecho */
+        }
         .contenedor-sorteo {
             background-color: rgba(31, 50, 70, 0.9);
             padding: 30px;
@@ -28,7 +41,7 @@
             max-width: 80vw;
             width: 100%;
             border: 2px solid #34495e;
-            z-index: 2;
+            z-index: 2; /* Se asegura de que esté por encima de las imágenes */
         }
         h1 {
             color: #f39c12; margin-bottom: 20px; font-size: 3em;
@@ -72,6 +85,14 @@
     </style>
 </head>
 <body>
+    <!-- ========= IMÁGENES DE LAS ESQUINAS ========= -->
+    <!-- Reemplaza el 'src' con la URL de tu imagen izquierda -->
+    <img src="img/dreams1.png" alt="Logo Izquierda" class="imagen-esquina imagen-izquierda">
+    
+    <!-- Reemplaza el 'src' con la URL de tu imagen derecha -->
+    <img src="img/dreams1.png" alt="Logo Derecha" class="imagen-esquina imagen-derecha">
+    <!-- ============================================= -->
+
     <main class="contenedor-sorteo">
         <h1>Mesas Millonarias</h1>
         <div id="resultado-sorteo">
