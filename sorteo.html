@@ -39,8 +39,7 @@
             position: absolute;
             top: 0; /* Pegado al borde superior */
             width: auto;
-            /* ==== CAMBIO: Aumentamos el tamaño de las imágenes de las esquinas ==== */
-            height: 120px; /* Altura aumentada de 90px a 120px */
+            height: 120px; /* Altura aumentada */
             z-index: 1; /* Se posiciona por encima del mosaico de fondo */
         }
         .imagen-izquierda {
@@ -98,6 +97,20 @@
             0% { transform: translateX(var(--x)) translateY(0) rotate(var(--deg)); opacity: 1; }
             100% { transform: translateX(var(--x-end)) translateY(110vh) rotate(var(--deg-end)); opacity: 0; }
         }
+
+        /* ==== INICIO: Estilos para el pie de página ==== */
+        footer {
+            position: fixed;
+            bottom: 10px;
+            width: 100%;
+            text-align: center;
+            color: #ecf0f1;
+            opacity: 0.6;
+            font-size: 0.8em;
+            z-index: 5; /* Nos aseguramos que esté visible */
+            pointer-events: none; /* Para que no interfiera con el clic en el body */
+        }
+        /* ==== FIN: Estilos para el pie de página ==== */
     </style>
 </head>
 <body>
@@ -116,6 +129,13 @@
         </div>
     </main>
     <div id="confetti-container" class="confetti-container"></div>
+    
+    <!-- ========= PIE DE PÁGINA CON LA FIRMA ========= -->
+    <footer>
+        <p>CarlosPN Interactive®</p>
+    </footer>
+    <!-- ============================================= -->
+
     <script>
         const cssSheet = document.getElementById('estilos-dinamicos');
         const divResultado = document.getElementById('resultado-sorteo');
@@ -199,4 +219,5 @@
     </script>
 </body>
 </html>
+
 
