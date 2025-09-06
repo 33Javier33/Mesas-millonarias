@@ -5,6 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mesas Millonarias - Sorteo</title>
     <style id="estilos-dinamicos">
+        /* ==== INICIO: Estilos para el fondo de mosaico ==== */
+        .fondo-mosaico {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('img/dreams1.png');
+            background-size: 150px; /* Tamaño de cada imagen en el mosaico */
+            opacity: 0.05; /* Hacemos el mosaico muy sutil */
+            z-index: 0; /* Lo colocamos detrás de todo */
+        }
+        /* ==== FIN: Estilos para el fondo de mosaico ==== */
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
@@ -19,13 +33,15 @@
             box-sizing: border-box;
             overflow: hidden;
             cursor: pointer;
+            position: relative; /* Necesario para el z-index */
         }
         .imagen-esquina {
             position: absolute;
             top: 0; /* Pegado al borde superior */
             width: auto;
-            height: 90px; /* Altura de la imagen */
-            z-index: 1; /* Se posiciona detrás del contenedor del sorteo */
+            /* ==== CAMBIO: Aumentamos el tamaño de las imágenes de las esquinas ==== */
+            height: 120px; /* Altura aumentada de 90px a 120px */
+            z-index: 1; /* Se posiciona por encima del mosaico de fondo */
         }
         .imagen-izquierda {
             left: 0; /* Pegado al borde izquierdo */
@@ -41,7 +57,7 @@
             max-width: 80vw;
             width: 100%;
             border: 2px solid #34495e;
-            z-index: 2; /* Se asegura de que esté por encima de las imágenes */
+            z-index: 2; /* Se asegura de que esté por encima de las imágenes de esquina */
         }
         h1 {
             color: #f39c12; margin-bottom: 20px; font-size: 3em;
@@ -76,7 +92,7 @@
             50% { content: '🃏'; transform: rotate(180deg); opacity: 0.2; }
             51% { content: '🃏'; transform: rotate(180deg); opacity: 0.8; }
         }
-        .confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; overflow: hidden; }
+        .confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 3; overflow: hidden; }
         .confetti { position: absolute; width: 8px; height: 8px; background-color: #f39c12; animation: fall 5s linear infinite; top: -20px; left: 50%; transform: translateX(-50%) rotate(0deg); will-change: transform, opacity; }
         @keyframes fall {
             0% { transform: translateX(var(--x)) translateY(0) rotate(var(--deg)); opacity: 1; }
@@ -85,11 +101,11 @@
     </style>
 </head>
 <body>
+    <!-- ========= FONDO DE MOSAICO ========= -->
+    <div class="fondo-mosaico"></div>
+
     <!-- ========= IMÁGENES DE LAS ESQUINAS ========= -->
-    <!-- Reemplaza el 'src' con la URL de tu imagen izquierda -->
     <img src="img/dreams1.png" alt="Logo Izquierda" class="imagen-esquina imagen-izquierda">
-    
-    <!-- Reemplaza el 'src' con la URL de tu imagen derecha -->
     <img src="img/dreams1.png" alt="Logo Derecha" class="imagen-esquina imagen-derecha">
     <!-- ============================================= -->
 
@@ -183,5 +199,4 @@
     </script>
 </body>
 </html>
-
 
