@@ -12,13 +12,18 @@
  *    computador con la pantalla de sorteo): un backend de Google Apps
  *    Script (ver /google-apps-script/Codigo.gs) al que se le hace POST
  *    para guardar cambios y GET (sondeo periódico) para detectarlos.
- *    Es opcional: si no se configura ninguna URL remota, todo sigue
- *    funcionando igual que antes, solo en local.
+ *    La URL viene incluida en URL_REMOTA_PREDETERMINADA, así que todos
+ *    los dispositivos que carguen esta misma página quedan conectados
+ *    automáticamente, sin tener que pegarla a mano en cada uno. Si algún
+ *    dispositivo necesita apuntar a otro backend, se puede seguir
+ *    sobrescribiendo con configurarUrlRemota() (guarda la excepción solo
+ *    en ese navegador).
  */
 (function (global) {
     const NOMBRE_CANAL = 'mesas-millonarias-canal';
     const CLAVE_RESPALDO = 'mesasMillonariasSenal';
     const CLAVE_URL_REMOTA = 'mesasMillonariasUrlRemota';
+    const URL_REMOTA_PREDETERMINADA = 'https://script.google.com/macros/s/AKfycbxDpczG6Vt3S8eOHpK7_AW5JIXr883oxGIOO52awhXqpmUbplcUDWDpqWC5xF4fEMiCwQ/exec';
     const INTERVALO_POLL_MS = 3000;
     const INTERVALO_MIN_LATIDO_REMOTO_MS = 4000;
 
@@ -62,13 +67,19 @@
     // --- Capa remota (Google Apps Script), opcional ---
 
     function obtenerUrlRemota() {
-        try { return (localStorage.getItem(CLAVE_URL_REMOTA) || '').trim(); } catch (e) { return ''; }
+        try {
+            const guardada = (localStorage.getItem(CLAVE_URL_REMOTA) || '').trim();
+            if (guardada) return guardada;
+        } catch (e) { /* ignorar */ }
+        return URL_REMOTA_PREDETERMINADA;
     }
 
+    // Permite, solo en este navegador, apuntar a otra URL distinta a la
+    // predeterminada (o dejar '' / la misma predeterminada para volver a usarla).
     function configurarUrlRemota(url) {
         try {
             const limpia = (url || '').trim();
-            if (limpia) localStorage.setItem(CLAVE_URL_REMOTA, limpia);
+            if (limpia && limpia !== URL_REMOTA_PREDETERMINADA) localStorage.setItem(CLAVE_URL_REMOTA, limpia);
             else localStorage.removeItem(CLAVE_URL_REMOTA);
         } catch (e) { /* ignorar */ }
         reiniciarPolling();

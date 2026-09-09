@@ -144,14 +144,14 @@
         <div class="control-seccion">
             <h4>Sincronización Remota (otro dispositivo, ej. tablet)</h4>
             <p style="font-size: 0.85em; text-align: center; opacity: 0.85; margin-top: 0;">
-                Pega aquí la URL de tu Google Apps Script (ver <code>google-apps-script/Codigo.gs</code>)
-                para poder controlar la pantalla de sorteo desde otro dispositivo por internet.
-                Debes pegar la <strong>misma URL</strong> también en la pantalla de sorteo
-                (botón ⚙ en su esquina inferior).
+                Ya viene conectada automáticamente: cualquier dispositivo que abra esta
+                página (tablet, computador, etc.) queda sincronizado con la pantalla de
+                sorteo por internet, sin configurar nada. Este campo es solo para el caso
+                avanzado de querer usar un backend distinto en este dispositivo.
             </p>
             <div class="input-group">
                 <input type="text" id="input-url-remota" placeholder="https://script.google.com/macros/s/.../exec">
-                <button id="btn-guardar-url-remota" class="btn">Guardar URL</button>
+                <button id="btn-guardar-url-remota" class="btn">Usar esta URL</button>
             </div>
             <p id="estado-sync-remota" style="font-size: 0.85em; text-align: center; margin-top: 8px; font-weight: bold;"></p>
         </div>
@@ -299,19 +299,14 @@
         const btnGuardarUrlRemota = document.getElementById('btn-guardar-url-remota');
         const estadoSyncRemota = document.getElementById('estado-sync-remota');
         const actualizarEstadoSyncRemota = () => {
-            const url = CanalSorteo.obtenerUrlRemota();
-            if (url) {
-                estadoSyncRemota.textContent = '🌐 Sincronización remota activa';
-                estadoSyncRemota.style.color = '#2ecc71';
-            } else {
-                estadoSyncRemota.textContent = 'Sin sincronización remota configurada (solo funciona en este dispositivo)';
-                estadoSyncRemota.style.color = '#95a5a6';
-            }
+            estadoSyncRemota.textContent = '🌐 Sincronización remota activa';
+            estadoSyncRemota.style.color = '#2ecc71';
         };
         const guardarUrlRemota = () => {
             CanalSorteo.configurarUrlRemota(inputUrlRemota.value);
+            inputUrlRemota.value = CanalSorteo.obtenerUrlRemota();
             actualizarEstadoSyncRemota();
-            alert('¡URL de sincronización remota guardada en este dispositivo!');
+            alert('¡Listo! Este dispositivo usará esa URL de sincronización remota.');
         };
 
         // --- Lógica de Control de Ventana ---
