@@ -115,6 +115,13 @@
         </div>
 
         <div class="config-seccion">
+            <h4>Monto del Premio:</h4>
+            <div class="input-group">
+                <input type="number" id="input-monto-premio" min="0" step="1000" placeholder="Ej: 100000">
+                <span id="monto-premio-preview" style="font-weight: bold; color: #f39c12; min-width: 110px;"></span>
+            </div>
+        </div>
+        <div class="config-seccion">
             <h4>Mesas en juego:</h4>
             <div class="botones-opciones">
                 <button class="btn-opcion" onclick="toggleCheckboxes('mesas-en-juego', true)">Seleccionar todos</button>
@@ -188,10 +195,15 @@
             colores21: ['Lila', 'Amarillo', 'Rojo', 'Verde', 'Azul', 'Plomo', 'Naranjo', 'Burdeo'],
             colores22: ['Amarillo', 'Verde', 'Azul', 'Celeste', 'Café', 'Negro', 'Burdeo', 'Rojo', 'Naranjo', 'Calipso', 'Gris'],
             colores23: ['Amarillo', 'Verde', 'Azul', 'Celeste', 'Café', 'Negro', 'Burdeo', 'Rojo', 'Naranjo', 'Calipso', 'Gris'],
-            colorMap: { 'lila': '#9B59B6', 'amarillo': '#F1C40F', 'rojo': '#E74C3C', 'verde': '#2ECC71', 'azul': '#3498DB', 'plomo': '#95A5A6', 'naranjo': '#E67E22', 'burdeo': '#C0392B', 'celeste': '#5DADE2', 'cafe': '#A0522D', 'negro': '#000000', 'calipso': '#00A896', 'gris': '#7f8c8d' }
+            colorMap: { 'lila': '#9B59B6', 'amarillo': '#F1C40F', 'rojo': '#E74C3C', 'verde': '#2ECC71', 'azul': '#3498DB', 'plomo': '#95A5A6', 'naranjo': '#E67E22', 'burdeo': '#C0392B', 'celeste': '#5DADE2', 'cafe': '#A0522D', 'negro': '#000000', 'calipso': '#00A896', 'gris': '#7f8c8d' },
+            montoPremio: 100000
         };
 
-        let todasLasMesas, coloresRuleta21, coloresRuleta22, coloresRuleta23, colorMap;
+        let todasLasMesas, coloresRuleta21, coloresRuleta22, coloresRuleta23, colorMap, montoPremio;
+        const inputMontoPremio = document.getElementById('input-monto-premio');
+        const montoPremioPreview = document.getElementById('monto-premio-preview');
+        const formatMonto = (numero) => (Number(numero) || 0).toLocaleString('es-CL');
+        const actualizarPreviewMonto = () => { montoPremioPreview.textContent = formatMonto(inputMontoPremio.value); };
 
         // --- Lógica de Control de Ventana ---
         function lanzarPantallaSorteo() { if (sorteoWindow && !sorteoWindow.closed) { sorteoWindow.focus(); return; } sorteoWindow = window.open('sorteo.html', 'Sorteo', 'fullscreen=yes,menubar=no,toolbar=no,location=no,status=no'); if (!sorteoWindow) { alert("El navegador bloqueó la ventana emergente."); return; } }
@@ -258,6 +270,7 @@
                 colores22: coloresRuleta22, // Guardado por separado
                 colores23: coloresRuleta23, // Guardado por separado
                 colorMap: colorMap,
+                montoPremio: parseInt(inputMontoPremio.value, 10) || 0,
                 checkedMesas: Array.from(document.querySelectorAll('input[name="mesas-en-juego"]:checked')).map(cb => cb.value),
                 checkedColores21: Array.from(document.querySelectorAll('input[name="colores-ruleta-21"]:checked')).map(cb => cb.value),
                 checkedColores22: Array.from(document.querySelectorAll('input[name="colores-ruleta-22"]:checked')).map(cb => cb.value),
@@ -276,6 +289,9 @@
             coloresRuleta22 = data.colores22 || defaultData.colores22;
             coloresRuleta23 = data.colores23 || defaultData.colores23;
             colorMap = data.colorMap || defaultData.colorMap;
+            montoPremio = (data.montoPremio !== undefined && data.montoPremio !== null) ? data.montoPremio : defaultData.montoPremio;
+            inputMontoPremio.value = montoPremio;
+            actualizarPreviewMonto();
         };
         
         const aplicarSeleccionesGuardadas = () => {
@@ -339,6 +355,7 @@
         document.getElementById('btn-agregar-color-21').addEventListener('click', () => agregarOpcion('lista-colores-21', 'colores-ruleta-21', coloresRuleta21, 'nuevo-color-nombre-21-input', 'nuevo-color-hex-21-input'));
         document.getElementById('btn-agregar-color-22').addEventListener('click', () => agregarOpcion('lista-colores-22', 'colores-ruleta-22', coloresRuleta22, 'nuevo-color-nombre-22-input', 'nuevo-color-hex-22-input'));
         document.getElementById('btn-agregar-color-23').addEventListener('click', () => agregarOpcion('lista-colores-23', 'colores-ruleta-23', coloresRuleta23, 'nuevo-color-nombre-23-input', 'nuevo-color-hex-23-input'));
+        inputMontoPremio.addEventListener('input', actualizarPreviewMonto);
         
         document.addEventListener('DOMContentLoaded', () => {
             cargarDatos();

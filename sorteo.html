@@ -39,6 +39,54 @@
             -webkit-user-drag: none;
         }
 
+        /* ==== Monto del premio y subtítulo, superpuestos sobre el fondo ==== */
+        .texto-monto {
+            position: absolute;
+            left: 31.72%;
+            width: 36.31%;
+            top: 38.91%;
+            height: 11.73%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+        .texto-monto span {
+            font-weight: 900;
+            font-style: italic;
+            font-size: 9.5cqw;
+            line-height: 1;
+            white-space: nowrap;
+            background: linear-gradient(180deg, #fff8d6 0%, #f6da70 28%, #dcaa42 58%, #b1791f 82%, #7c4b10 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 3px 4px 0 rgba(70, 35, 5, 0.55);
+        }
+        .texto-subtitulo {
+            position: absolute;
+            left: 33.44%;
+            width: 33.28%;
+            top: 52.79%;
+            height: 6.3%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+        .texto-subtitulo span {
+            font-weight: 800;
+            font-style: italic;
+            font-size: 4.4cqw;
+            line-height: 1;
+            white-space: nowrap;
+            background: linear-gradient(180deg, #fff8d6 0%, #f6da70 35%, #dcaa42 70%, #b1791f 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 2px 2px 0 rgba(70, 35, 5, 0.5);
+        }
+
         /* ==== Cajas de la tómbola, alineadas con los recuadros blancos de la imagen ==== */
         .reel-caja {
             position: absolute;
@@ -122,7 +170,9 @@
 </head>
 <body>
     <div class="escenario-sorteo">
-        <img src="img/fondo-sorteo.png" alt="Estamos Sorteando 100.000 en promocionales" class="fondo-imagen">
+        <img src="img/fondo-sorteo.png" alt="Estamos Sorteando en promocionales" class="fondo-imagen">
+        <div class="texto-monto"><span id="texto-monto-premio">100.000</span></div>
+        <div class="texto-subtitulo"><span>En promocionales</span></div>
         <div id="reel-mesa" class="reel-caja"><span class="reel-texto">—</span></div>
         <div id="reel-ganador" class="reel-caja"><span class="reel-texto">—</span></div>
     </div>
@@ -137,6 +187,7 @@
 
     <script>
         const cssSheet = document.getElementById('estilos-dinamicos');
+        const textoMontoPremio = document.getElementById('texto-monto-premio');
         const cajaMesa = document.getElementById('reel-mesa');
         const cajaGanador = document.getElementById('reel-ganador');
         const textoMesa = cajaMesa.querySelector('.reel-texto');
@@ -150,6 +201,8 @@
 
         const formatColorName = (name) => { if (typeof name !== 'string') return ''; return name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-'); };
         const generarClasesColores = (colorName, hexCode) => { const formattedName = formatColorName(colorName); if(hexCode && !cssSheet.innerHTML.includes(`.color-${formattedName}`)){ cssSheet.innerHTML += ` .color-${formattedName} { color: ${hexCode} !important; }`; } };
+        const formatMonto = (numero) => (Number(numero) || 0).toLocaleString('es-CL');
+        const obtenerMontoPremio = () => (datosSorteo.montoPremio !== undefined && datosSorteo.montoPremio !== null) ? datosSorteo.montoPremio : 100000;
 
         const aplicarDatos = (data) => {
             datosSorteo = data || {};
@@ -159,6 +212,7 @@
                     generarClasesColores(originalName, value);
                 });
             }
+            textoMontoPremio.textContent = formatMonto(obtenerMontoPremio());
         };
 
         const cargarDatosLocalStorage = () => {
@@ -178,7 +232,9 @@
         const ajustarTamano = (elementoTexto) => {
             elementoTexto.style.fontSize = '';
             const contenedor = elementoTexto.parentElement;
-            const disponible = contenedor.clientWidth - 4;
+            const estiloContenedor = getComputedStyle(contenedor);
+            const paddingHorizontal = parseFloat(estiloContenedor.paddingLeft) + parseFloat(estiloContenedor.paddingRight);
+            const disponible = contenedor.clientWidth - paddingHorizontal - 4;
             let tamano = parseFloat(getComputedStyle(elementoTexto).fontSize);
             const ancho = elementoTexto.scrollWidth;
             if (ancho > disponible && ancho > 0) {
@@ -291,7 +347,7 @@
 
         window.entregarPremio = function () {
             const claseColor = ultimoColorGanador ? `color-${formatColorName(ultimoColorGanador)}` : 'color-amarillo';
-            mensajeEstado.innerHTML = `<span class="${claseColor}">¡100.000 en Fichas Promocionales entregadas!</span><span class="subtexto">Premio válido con tarjeta del casino.</span>`;
+            mensajeEstado.innerHTML = `<span class="${claseColor}">¡${formatMonto(obtenerMontoPremio())} en Fichas Promocionales entregadas!</span><span class="subtexto">Premio válido con tarjeta del casino.</span>`;
             CanalSorteo.enviar({ tipo: 'premio-entregado' });
         };
 
