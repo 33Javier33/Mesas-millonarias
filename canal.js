@@ -24,8 +24,8 @@
     const CLAVE_RESPALDO = 'mesasMillonariasSenal';
     const CLAVE_URL_REMOTA = 'mesasMillonariasUrlRemota';
     const URL_REMOTA_PREDETERMINADA = 'https://script.google.com/macros/s/AKfycbxDpczG6Vt3S8eOHpK7_AW5JIXr883oxGIOO52awhXqpmUbplcUDWDpqWC5xF4fEMiCwQ/exec';
-    const INTERVALO_POLL_MS = 3000;
-    const INTERVALO_MIN_LATIDO_REMOTO_MS = 4000;
+    const INTERVALO_POLL_MS = 1000;
+    const INTERVALO_MIN_LATIDO_REMOTO_MS = 1500;
 
     let canal = null;
     try {
