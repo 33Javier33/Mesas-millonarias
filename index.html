@@ -122,6 +122,23 @@
             </div>
         </div>
         <div class="config-seccion">
+            <h4>Tiempos de Suspenso y Efectos:</h4>
+            <div class="input-group">
+                <label style="min-width: 190px;">Tómbola de Mesa (segundos):</label>
+                <input type="number" id="input-duracion-mesa" min="1" max="20" step="0.5" style="width: 90px;">
+            </div>
+            <div class="input-group">
+                <label style="min-width: 190px;">Tómbola de Ganador (segundos):</label>
+                <input type="number" id="input-duracion-ganador" min="1" max="20" step="0.5" style="width: 90px;">
+            </div>
+            <div class="input-group">
+                <label style="min-width: 190px; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" id="input-confeti-activado" style="transform: scale(1.3); margin: 0;">
+                    Mostrar confeti/serpentina al ganar
+                </label>
+            </div>
+        </div>
+        <div class="config-seccion">
             <h4>Mesas en juego:</h4>
             <div class="botones-opciones">
                 <button class="btn-opcion" onclick="toggleCheckboxes('mesas-en-juego', true)">Seleccionar todos</button>
@@ -196,12 +213,18 @@
             colores22: ['Amarillo', 'Verde', 'Azul', 'Celeste', 'Café', 'Negro', 'Burdeo', 'Rojo', 'Naranjo', 'Calipso', 'Gris'],
             colores23: ['Amarillo', 'Verde', 'Azul', 'Celeste', 'Café', 'Negro', 'Burdeo', 'Rojo', 'Naranjo', 'Calipso', 'Gris'],
             colorMap: { 'lila': '#9B59B6', 'amarillo': '#F1C40F', 'rojo': '#E74C3C', 'verde': '#2ECC71', 'azul': '#3498DB', 'plomo': '#95A5A6', 'naranjo': '#E67E22', 'burdeo': '#C0392B', 'celeste': '#5DADE2', 'cafe': '#A0522D', 'negro': '#000000', 'calipso': '#00A896', 'gris': '#7f8c8d' },
-            montoPremio: 100000
+            montoPremio: 100000,
+            duracionMesa: 3,
+            duracionGanador: 3,
+            confetiActivado: true
         };
 
         let todasLasMesas, coloresRuleta21, coloresRuleta22, coloresRuleta23, colorMap, montoPremio;
         const inputMontoPremio = document.getElementById('input-monto-premio');
         const montoPremioPreview = document.getElementById('monto-premio-preview');
+        const inputDuracionMesa = document.getElementById('input-duracion-mesa');
+        const inputDuracionGanador = document.getElementById('input-duracion-ganador');
+        const inputConfetiActivado = document.getElementById('input-confeti-activado');
         const formatMonto = (numero) => (Number(numero) || 0).toLocaleString('es-CL');
         const actualizarPreviewMonto = () => { montoPremioPreview.textContent = formatMonto(inputMontoPremio.value); };
 
@@ -271,6 +294,9 @@
                 colores23: coloresRuleta23, // Guardado por separado
                 colorMap: colorMap,
                 montoPremio: parseInt(inputMontoPremio.value, 10) || 0,
+                duracionMesa: parseFloat(inputDuracionMesa.value) || defaultData.duracionMesa,
+                duracionGanador: parseFloat(inputDuracionGanador.value) || defaultData.duracionGanador,
+                confetiActivado: inputConfetiActivado.checked,
                 checkedMesas: Array.from(document.querySelectorAll('input[name="mesas-en-juego"]:checked')).map(cb => cb.value),
                 checkedColores21: Array.from(document.querySelectorAll('input[name="colores-ruleta-21"]:checked')).map(cb => cb.value),
                 checkedColores22: Array.from(document.querySelectorAll('input[name="colores-ruleta-22"]:checked')).map(cb => cb.value),
@@ -291,6 +317,9 @@
             colorMap = data.colorMap || defaultData.colorMap;
             montoPremio = (data.montoPremio !== undefined && data.montoPremio !== null) ? data.montoPremio : defaultData.montoPremio;
             inputMontoPremio.value = montoPremio;
+            inputDuracionMesa.value = (data.duracionMesa !== undefined && data.duracionMesa !== null) ? data.duracionMesa : defaultData.duracionMesa;
+            inputDuracionGanador.value = (data.duracionGanador !== undefined && data.duracionGanador !== null) ? data.duracionGanador : defaultData.duracionGanador;
+            inputConfetiActivado.checked = (data.confetiActivado !== undefined && data.confetiActivado !== null) ? !!data.confetiActivado : defaultData.confetiActivado;
             actualizarPreviewMonto();
         };
         

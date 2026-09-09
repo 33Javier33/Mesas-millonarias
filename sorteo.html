@@ -199,6 +199,18 @@
         let ultimoColorGanador = '';
         let datosSorteo = {};
 
+        // Evita que el mismo resultado se repita dos veces seguidas dentro de cada categoría.
+        let ultimaMesaGanadora = '';
+        let ultimoPuestoGanador = '';
+        const ultimosColoresPorGrupo = { 21: '', 22: '', 23: '' };
+        const elegirSinRepetir = (lista, ultimoValor) => {
+            if (!lista || lista.length === 0) return undefined;
+            if (lista.length === 1) return lista[0];
+            const opciones = lista.filter((v) => v !== ultimoValor);
+            const pool = opciones.length ? opciones : lista;
+            return pool[Math.floor(Math.random() * pool.length)];
+        };
+
         const formatColorName = (name) => { if (typeof name !== 'string') return ''; return name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-'); };
         const generarClasesColores = (colorName, hexCode) => { const formattedName = formatColorName(colorName); if(hexCode && !cssSheet.innerHTML.includes(`.color-${formattedName}`)){ cssSheet.innerHTML += ` .color-${formattedName} { color: ${hexCode} !important; }`; } };
         const formatMonto = (numero) => (Number(numero) || 0).toLocaleString('es-CL');
@@ -302,21 +314,28 @@
             textoGanador.className = 'reel-texto';
             mensajeEstado.textContent = 'Girando la tómbola de mesas...';
 
-            const mesaGanadora = mesasEnJuego[Math.floor(Math.random() * mesasEnJuego.length)];
+            const mesaGanadora = elegirSinRepetir(mesasEnJuego, ultimaMesaGanadora);
+            ultimaMesaGanadora = mesaGanadora;
             const todasLasMesas = datosSorteo.mesas || mesasEnJuego;
+            const duracionMesaMs = (Number(datosSorteo.duracionMesa) > 0 ? Number(datosSorteo.duracionMesa) : 3) * 1000;
+            const duracionGanadorMs = (Number(datosSorteo.duracionGanador) > 0 ? Number(datosSorteo.duracionGanador) : 3) * 1000;
+            const confetiActivado = datosSorteo.confetiActivado !== false;
 
-            girarTombola(cajaMesa, textoMesa, todasLasMesas, mesaGanadora, 3000, false, () => {
+            girarTombola(cajaMesa, textoMesa, todasLasMesas, mesaGanadora, duracionMesaMs, false, () => {
                 mensajeEstado.textContent = 'Girando la tómbola del ganador...';
 
-                let candidatosGanador, listaChequeada, esColor = true;
+                let candidatosGanador, listaChequeada, esColor = true, grupoRuleta = null;
                 if (mesaGanadora.includes('Ruleta')) {
                     if (mesaGanadora.includes('21') || mesaGanadora.includes('24') || mesaGanadora.includes('25')) {
+                        grupoRuleta = 21;
                         candidatosGanador = datosSorteo.colores21 || [];
                         listaChequeada = datosSorteo.checkedColores21 || [];
                     } else if (mesaGanadora.includes('22')) {
+                        grupoRuleta = 22;
                         candidatosGanador = datosSorteo.colores22 || [];
                         listaChequeada = datosSorteo.checkedColores22 || [];
                     } else if (mesaGanadora.includes('23')) {
+                        grupoRuleta = 23;
                         candidatosGanador = datosSorteo.colores23 || [];
                         listaChequeada = datosSorteo.checkedColores23 || [];
                     }
@@ -333,12 +352,14 @@
                     return;
                 }
 
-                const valorGanador = listaChequeada[Math.floor(Math.random() * listaChequeada.length)];
+                const ultimoValorCategoria = grupoRuleta ? ultimosColoresPorGrupo[grupoRuleta] : ultimoPuestoGanador;
+                const valorGanador = elegirSinRepetir(listaChequeada, ultimoValorCategoria);
+                if (grupoRuleta) { ultimosColoresPorGrupo[grupoRuleta] = valorGanador; } else { ultimoPuestoGanador = valorGanador; }
                 ultimoColorGanador = esColor ? valorGanador : '';
 
-                girarTombola(cajaGanador, textoGanador, candidatosGanador, valorGanador, 3000, esColor, () => {
+                girarTombola(cajaGanador, textoGanador, candidatosGanador, valorGanador, duracionGanadorMs, esColor, () => {
                     mensajeEstado.innerHTML = `¡Tenemos ganador! Mesa <strong>${mesaGanadora}</strong>`;
-                    iniciarConfetiContinuo();
+                    if (confetiActivado) { iniciarConfetiContinuo(); }
                     sorteoEnCurso = false;
                     CanalSorteo.enviar({ tipo: 'sorteo-terminado', mesa: mesaGanadora, ganador: valorGanador });
                 });
