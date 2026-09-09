@@ -93,6 +93,14 @@
         .botones-opciones { display: flex; gap: 10px; margin-bottom: 10px; justify-content: flex-start; }
         .btn-opcion { font-size: 0.9em; padding: 5px 10px; background-color: #555; color: white; border: none; border-radius: 5px; cursor: pointer; }
         .btn-guardar { background-color: #3498db; width: 100%; margin-top: 20px; padding: 15px; font-size: 1.2em; }
+
+        .selector-temas { display: flex; gap: 12px; flex-wrap: wrap; }
+        .tema-opcion { cursor: pointer; border: 3px solid #34495e; border-radius: 8px; overflow: hidden; width: 150px; text-align: center; background-color: #1f3246; transition: border-color 0.2s; }
+        .tema-opcion:hover { border-color: #4a627d; }
+        .tema-opcion:has(input:checked) { border-color: #f39c12; }
+        .tema-opcion input[type="radio"] { display: none; }
+        .tema-opcion img { width: 100%; height: 85px; object-fit: cover; display: block; }
+        .tema-opcion span { display: block; padding: 6px 4px; font-size: 0.85em; font-weight: bold; }
         .btn-guardar:hover { background-color: #2980b9; }
     </style>
     <script src="canal.js"></script>
@@ -119,6 +127,26 @@
             <div class="input-group">
                 <input type="number" id="input-monto-premio" min="0" step="1000" placeholder="Ej: 100000">
                 <span id="monto-premio-preview" style="font-weight: bold; color: #f39c12; min-width: 110px;"></span>
+            </div>
+        </div>
+        <div class="config-seccion">
+            <h4>Tema de la Pantalla de Sorteo:</h4>
+            <div class="selector-temas" id="selector-temas">
+                <label class="tema-opcion">
+                    <input type="radio" name="tema-sorteo" value="original">
+                    <img src="img/fondo-sorteo.png" alt="Tema Original">
+                    <span>Original</span>
+                </label>
+                <label class="tema-opcion">
+                    <input type="radio" name="tema-sorteo" value="tema2">
+                    <img src="img/fondo-tema2.jpg" alt="Tema 2">
+                    <span>Tema 2</span>
+                </label>
+                <label class="tema-opcion">
+                    <input type="radio" name="tema-sorteo" value="tema3">
+                    <img src="img/fondo-tema3.jpg" alt="Tema 3">
+                    <span>Tema 3</span>
+                </label>
             </div>
         </div>
         <div class="config-seccion">
@@ -216,7 +244,8 @@
             montoPremio: 100000,
             duracionMesa: 3,
             duracionGanador: 3,
-            confetiActivado: true
+            confetiActivado: true,
+            temaSorteo: 'original'
         };
 
         let todasLasMesas, coloresRuleta21, coloresRuleta22, coloresRuleta23, colorMap, montoPremio;
@@ -225,6 +254,7 @@
         const inputDuracionMesa = document.getElementById('input-duracion-mesa');
         const inputDuracionGanador = document.getElementById('input-duracion-ganador');
         const inputConfetiActivado = document.getElementById('input-confeti-activado');
+        const inputsTemaSorteo = document.querySelectorAll('input[name="tema-sorteo"]');
         const formatMonto = (numero) => (Number(numero) || 0).toLocaleString('es-CL');
         const actualizarPreviewMonto = () => { montoPremioPreview.textContent = formatMonto(inputMontoPremio.value); };
 
@@ -297,6 +327,7 @@
                 duracionMesa: parseFloat(inputDuracionMesa.value) || defaultData.duracionMesa,
                 duracionGanador: parseFloat(inputDuracionGanador.value) || defaultData.duracionGanador,
                 confetiActivado: inputConfetiActivado.checked,
+                temaSorteo: (document.querySelector('input[name="tema-sorteo"]:checked') || {}).value || defaultData.temaSorteo,
                 checkedMesas: Array.from(document.querySelectorAll('input[name="mesas-en-juego"]:checked')).map(cb => cb.value),
                 checkedColores21: Array.from(document.querySelectorAll('input[name="colores-ruleta-21"]:checked')).map(cb => cb.value),
                 checkedColores22: Array.from(document.querySelectorAll('input[name="colores-ruleta-22"]:checked')).map(cb => cb.value),
@@ -320,6 +351,8 @@
             inputDuracionMesa.value = (data.duracionMesa !== undefined && data.duracionMesa !== null) ? data.duracionMesa : defaultData.duracionMesa;
             inputDuracionGanador.value = (data.duracionGanador !== undefined && data.duracionGanador !== null) ? data.duracionGanador : defaultData.duracionGanador;
             inputConfetiActivado.checked = (data.confetiActivado !== undefined && data.confetiActivado !== null) ? !!data.confetiActivado : defaultData.confetiActivado;
+            const temaGuardado = data.temaSorteo || defaultData.temaSorteo;
+            inputsTemaSorteo.forEach((input) => { input.checked = (input.value === temaGuardado); });
             actualizarPreviewMonto();
         };
         

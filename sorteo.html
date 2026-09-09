@@ -23,11 +23,9 @@
             cursor: pointer;
         }
 
-        /* ==== Escenario: mantiene la proporción exacta de la imagen de fondo (1220x699) ==== */
+        /* ==== Escenario: mantiene la proporción exacta de la imagen de fondo (el tamaño exacto lo fija JS según el tema activo) ==== */
         .escenario-sorteo {
             position: relative;
-            width: min(100vw, 174.536vh);
-            height: min(100vh, 57.295vw);
             container-type: inline-size;
         }
         .fondo-imagen {
@@ -39,13 +37,9 @@
             -webkit-user-drag: none;
         }
 
-        /* ==== Monto del premio y subtítulo, superpuestos sobre el fondo ==== */
-        .texto-monto {
+        /* ==== Monto del premio y subtítulo, superpuestos sobre el fondo (posición la fija JS según el tema) ==== */
+        .texto-monto, .texto-subtitulo {
             position: absolute;
-            left: 31.72%;
-            width: 36.31%;
-            top: 38.91%;
-            height: 11.73%;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -63,17 +57,6 @@
             color: transparent;
             text-shadow: 3px 4px 0 rgba(70, 35, 5, 0.55);
         }
-        .texto-subtitulo {
-            position: absolute;
-            left: 33.44%;
-            width: 33.28%;
-            top: 52.79%;
-            height: 6.3%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            pointer-events: none;
-        }
         .texto-subtitulo span {
             font-weight: 800;
             font-style: italic;
@@ -87,11 +70,9 @@
             text-shadow: 2px 2px 0 rgba(70, 35, 5, 0.5);
         }
 
-        /* ==== Cajas de la tómbola, alineadas con los recuadros blancos de la imagen ==== */
+        /* ==== Cajas de la tómbola (posición la fija JS según el tema activo) ==== */
         .reel-caja {
             position: absolute;
-            top: 74.96%;
-            height: 9.45%;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -100,20 +81,26 @@
             box-sizing: border-box;
             border-radius: 12px;
         }
-        #reel-mesa { left: 15.66%; width: 32.21%; }
-        #reel-ganador { left: 53.2%; width: 32.21%; }
 
         .reel-texto {
             font-weight: 800;
             text-transform: uppercase;
             line-height: 1.05;
             text-align: center;
-            color: #7a1120;
             text-shadow: 0 0 2px rgba(0,0,0,0.35);
             -webkit-text-stroke: 0.4px rgba(0,0,0,0.25);
             font-size: 7.5cqw;
             white-space: nowrap;
             max-width: 100%;
+        }
+        /* Color por defecto de las tómbolas: oscuro sobre recuadro blanco (tema original)
+           o dorado brillante sobre recuadro oscuro (temas 2 y 3). Los resultados de color
+           de ruleta siempre pisan esto vía su propia clase .color-xxxx !important. */
+        .escenario-sorteo.tema-original .reel-texto { color: #7a1120; }
+        .escenario-sorteo.tema-tema2 .reel-texto,
+        .escenario-sorteo.tema-tema3 .reel-texto {
+            color: #f6da70;
+            text-shadow: 0 0 4px rgba(0,0,0,0.65), 0 0 2px rgba(0,0,0,0.8);
         }
 
         .reel-caja.reel-girando .reel-texto {
@@ -169,10 +156,10 @@
     </style>
 </head>
 <body>
-    <div class="escenario-sorteo">
-        <img src="img/fondo-sorteo.png" alt="Estamos Sorteando en promocionales" class="fondo-imagen">
-        <div class="texto-monto"><span id="texto-monto-premio">100.000</span></div>
-        <div class="texto-subtitulo"><span>En promocionales</span></div>
+    <div class="escenario-sorteo tema-original" id="escenario-sorteo">
+        <img src="img/fondo-sorteo.png" alt="Estamos Sorteando en promocionales" class="fondo-imagen" id="fondo-imagen">
+        <div class="texto-monto" id="caja-monto"><span id="texto-monto-premio">100.000</span></div>
+        <div class="texto-subtitulo" id="caja-subtitulo"><span>En promocionales</span></div>
         <div id="reel-mesa" class="reel-caja"><span class="reel-texto">—</span></div>
         <div id="reel-ganador" class="reel-caja"><span class="reel-texto">—</span></div>
     </div>
@@ -187,6 +174,10 @@
 
     <script>
         const cssSheet = document.getElementById('estilos-dinamicos');
+        const escenarioSorteo = document.getElementById('escenario-sorteo');
+        const fondoImagenEl = document.getElementById('fondo-imagen');
+        const cajaMontoEl = document.getElementById('caja-monto');
+        const cajaSubtituloEl = document.getElementById('caja-subtitulo');
         const textoMontoPremio = document.getElementById('texto-monto-premio');
         const cajaMesa = document.getElementById('reel-mesa');
         const cajaGanador = document.getElementById('reel-ganador');
@@ -216,6 +207,54 @@
         const formatMonto = (numero) => (Number(numero) || 0).toLocaleString('es-CL');
         const obtenerMontoPremio = () => (datosSorteo.montoPremio !== undefined && datosSorteo.montoPremio !== null) ? datosSorteo.montoPremio : 100000;
 
+        // --- Temas visuales de la pantalla de sorteo ---
+        // Cada tema define su imagen de fondo, su proporci\u00f3n (ancho/alto) y la posici\u00f3n
+        // en % de cada elemento superpuesto, calculada sobre esa imagen.
+        const TEMAS = {
+            original: {
+                imagen: 'img/fondo-sorteo.png',
+                aspecto: 1220 / 699,
+                monto: { left: 31.72, top: 38.91, width: 36.31, height: 11.73 },
+                subtitulo: { left: 33.44, top: 52.79, width: 33.28, height: 6.3 },
+                reelMesa: { left: 15.66, top: 74.96, width: 32.21, height: 9.45 },
+                reelGanador: { left: 53.2, top: 74.96, width: 32.21, height: 9.45 },
+            },
+            tema2: {
+                imagen: 'img/fondo-tema2.jpg',
+                aspecto: 1368 / 784,
+                monto: { left: 31.73, top: 38.52, width: 36.62, height: 12.12 },
+                subtitulo: { left: 33.63, top: 53.06, width: 33.48, height: 6.12 },
+                reelMesa: { left: 14.18, top: 73.47, width: 35.16, height: 12.88 },
+                reelGanador: { left: 52.05, top: 73.47, width: 37.35, height: 12.88 },
+            },
+            tema3: {
+                imagen: 'img/fondo-tema3.jpg',
+                aspecto: 1288 / 730,
+                monto: { left: 33.70, top: 41.37, width: 38.90, height: 13.01 },
+                subtitulo: { left: 35.71, top: 56.99, width: 35.56, height: 6.58 },
+                reelMesa: { left: 14.52, top: 78.36, width: 37.89, height: 14.52 },
+                reelGanador: { left: 55.05, top: 78.36, width: 44.64, height: 14.52 },
+            },
+        };
+        let temaActual = '';
+        const ubicar = (el, pos) => { el.style.left = pos.left + '%'; el.style.top = pos.top + '%'; el.style.width = pos.width + '%'; el.style.height = pos.height + '%'; };
+        const aplicarTema = (temaKey) => {
+            const clave = TEMAS[temaKey] ? temaKey : 'original';
+            const tema = TEMAS[clave];
+            if (clave !== temaActual) {
+                fondoImagenEl.src = tema.imagen;
+                escenarioSorteo.classList.remove('tema-original', 'tema-tema2', 'tema-tema3');
+                escenarioSorteo.classList.add('tema-' + clave);
+                temaActual = clave;
+            }
+            escenarioSorteo.style.width = `min(100vw, ${(tema.aspecto * 100)}vh)`;
+            escenarioSorteo.style.height = `min(100vh, ${(100 / tema.aspecto)}vw)`;
+            ubicar(cajaMontoEl, tema.monto);
+            ubicar(cajaSubtituloEl, tema.subtitulo);
+            ubicar(cajaMesa, tema.reelMesa);
+            ubicar(cajaGanador, tema.reelGanador);
+        };
+
         const aplicarDatos = (data) => {
             datosSorteo = data || {};
             if (datosSorteo.colorMap) {
@@ -225,6 +264,7 @@
                 });
             }
             textoMontoPremio.textContent = formatMonto(obtenerMontoPremio());
+            aplicarTema(datosSorteo.temaSorteo);
         };
 
         const cargarDatosLocalStorage = () => {
@@ -232,6 +272,7 @@
             if (storedData) {
                 aplicarDatos(JSON.parse(storedData));
             } else {
+                aplicarDatos({});
                 mensajeEstado.textContent = 'Esperando configuración desde el panel de control...';
             }
         };
