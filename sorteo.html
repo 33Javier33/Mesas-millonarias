@@ -281,21 +281,33 @@
         const iniciarConfetiContinuo = () => { for (let i = 0; i < 50; i++) crearConfettiParticula(); confettiInterval = setInterval(crearConfettiParticula, 100); };
         const detenerConfetiContinuo = () => { clearInterval(confettiInterval); confettiContainer.innerHTML = ''; };
 
-        // Reduce el tamaño de fuente hasta que el texto entre en una sola línea dentro de la caja.
+        // Reduce el tamaño de fuente hasta que el texto entre, en una sola línea,
+        // tanto en el ancho como en el alto disponibles dentro de la caja.
         const ajustarTamano = (elementoTexto) => {
             elementoTexto.style.fontSize = '';
             const contenedor = elementoTexto.parentElement;
             const estiloContenedor = getComputedStyle(contenedor);
             const paddingHorizontal = parseFloat(estiloContenedor.paddingLeft) + parseFloat(estiloContenedor.paddingRight);
-            const disponible = contenedor.clientWidth - paddingHorizontal - 4;
+            const disponibleAncho = contenedor.clientWidth - paddingHorizontal - 4;
+            // La caja no tiene padding vertical propio; dejamos un margen (18%) para que
+            // el texto no toque el marco decorativo de arriba/abajo.
+            const disponibleAlto = contenedor.clientHeight * 0.82;
             let tamano = parseFloat(getComputedStyle(elementoTexto).fontSize);
+
             const ancho = elementoTexto.scrollWidth;
-            if (ancho > disponible && ancho > 0) {
-                tamano = Math.max(10, Math.floor(tamano * disponible / ancho));
+            if (ancho > disponibleAncho && ancho > 0) {
+                tamano = Math.max(10, Math.floor(tamano * disponibleAncho / ancho));
                 elementoTexto.style.fontSize = tamano + 'px';
             }
+            // El alto de una línea de texto es ~1.05 veces el tamaño de fuente (line-height).
+            const altoLinea = tamano * 1.05;
+            if (altoLinea > disponibleAlto && disponibleAlto > 0) {
+                tamano = Math.max(10, Math.floor(tamano * disponibleAlto / altoLinea));
+                elementoTexto.style.fontSize = tamano + 'px';
+            }
+
             let intentos = 0;
-            while (elementoTexto.scrollWidth > disponible && tamano > 10 && intentos < 20) {
+            while ((elementoTexto.scrollWidth > disponibleAncho || elementoTexto.scrollHeight > disponibleAlto) && tamano > 10 && intentos < 20) {
                 tamano -= 1;
                 elementoTexto.style.fontSize = tamano + 'px';
                 intentos++;
