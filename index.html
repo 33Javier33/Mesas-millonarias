@@ -11,6 +11,7 @@
             color: #ecf0f1;
             margin: 0;
             padding: 20px;
+            padding-bottom: 90px;
             box-sizing: border-box;
             display: flex;
             justify-content: center;
@@ -26,6 +27,24 @@
             width: 100%;
             border: 2px solid #34495e;
             margin-bottom: 20px;
+        }
+        /* Barra de guardado flotante: siempre visible, sin importar el scroll */
+        .barra-guardar-flotante {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            justify-content: center;
+            padding: 12px 20px;
+            background: linear-gradient(to top, rgba(13, 26, 38, 0.97) 60%, rgba(13, 26, 38, 0));
+            z-index: 100;
+            pointer-events: none;
+        }
+        .barra-guardar-flotante .btn-guardar {
+            pointer-events: auto;
+            max-width: 700px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
         }
         h3, h4 {
             color: #f39c12;
@@ -216,6 +235,8 @@
                 <button class="btn btn-agregar" id="btn-agregar-color-23">Agregar</button>
             </div>
         </div>
+    </div>
+    <div class="barra-guardar-flotante">
         <button id="btn-guardar" class="btn btn-guardar">Guardar y Sincronizar</button>
     </div>
 
