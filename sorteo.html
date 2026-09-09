@@ -154,10 +154,9 @@
             pointer-events: none;
         }
 
-        #btn-config-remota {
+        #btn-config-remota, #btn-pantalla-completa {
             position: fixed;
             top: 8px;
-            right: 8px;
             z-index: 6;
             width: 34px;
             height: 34px;
@@ -170,7 +169,9 @@
             opacity: 0.35;
             transition: opacity 0.2s;
         }
-        #btn-config-remota:hover { opacity: 0.9; }
+        #btn-config-remota:hover, #btn-pantalla-completa:hover { opacity: 0.9; }
+        #btn-config-remota { right: 8px; }
+        #btn-pantalla-completa { right: 50px; }
     </style>
 </head>
 <body>
@@ -183,6 +184,7 @@
     </div>
 
     <button id="btn-config-remota" title="Configurar sincronización remota">⚙</button>
+    <button id="btn-pantalla-completa" title="Pantalla completa">⛶</button>
 
     <div id="mensaje-estado" class="mensaje-estado">Haz clic en cualquier lugar para iniciar el sorteo</div>
 
@@ -273,6 +275,7 @@
             ubicar(cajaSubtituloEl, tema.subtitulo);
             ubicar(cajaMesa, tema.reelMesa);
             ubicar(cajaGanador, tema.reelGanador);
+            ajustarTamano(cajaSubtituloEl.querySelector('span'));
         };
 
         const aplicarDatos = (data) => {
@@ -283,8 +286,9 @@
                     generarClasesColores(originalName, value);
                 });
             }
-            textoMontoPremio.textContent = formatMonto(obtenerMontoPremio());
             aplicarTema(datosSorteo.temaSorteo);
+            textoMontoPremio.textContent = formatMonto(obtenerMontoPremio());
+            ajustarTamano(textoMontoPremio);
         };
 
         const cargarDatosLocalStorage = () => {
@@ -473,6 +477,23 @@
             }
         });
 
+        const btnPantallaCompleta = document.getElementById('btn-pantalla-completa');
+        const actualizarBotonPantallaCompleta = () => {
+            btnPantallaCompleta.textContent = document.fullscreenElement ? '⤢' : '⛶';
+            btnPantallaCompleta.title = document.fullscreenElement ? 'Salir de pantalla completa' : 'Pantalla completa';
+        };
+        btnPantallaCompleta.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            } else {
+                document.documentElement.requestFullscreen().catch(() => {
+                    alert('Este navegador no permite pantalla completa aquí. Prueba el botón de pantalla completa del propio navegador o del control remoto del televisor.');
+                });
+            }
+        });
+        document.addEventListener('fullscreenchange', actualizarBotonPantallaCompleta);
+
         document.addEventListener('DOMContentLoaded', () => {
             cargarDatosLocalStorage();
             // Latido: informa al panel de control que esta pantalla sigue activa.
@@ -483,6 +504,8 @@
 
         window.addEventListener('resize', () => {
             [textoMesa, textoGanador].forEach((el) => { if (el.textContent && el.textContent !== '—') ajustarTamano(el); });
+            ajustarTamano(textoMontoPremio);
+            ajustarTamano(cajaSubtituloEl.querySelector('span'));
         });
     </script>
 </body>
