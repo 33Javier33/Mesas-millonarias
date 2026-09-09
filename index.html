@@ -141,6 +141,21 @@
             </p>
         </div>
 
+        <div class="control-seccion">
+            <h4>Sincronización Remota (otro dispositivo, ej. tablet)</h4>
+            <p style="font-size: 0.85em; text-align: center; opacity: 0.85; margin-top: 0;">
+                Pega aquí la URL de tu Google Apps Script (ver <code>google-apps-script/Codigo.gs</code>)
+                para poder controlar la pantalla de sorteo desde otro dispositivo por internet.
+                Debes pegar la <strong>misma URL</strong> también en la pantalla de sorteo
+                (botón ⚙ en su esquina inferior).
+            </p>
+            <div class="input-group">
+                <input type="text" id="input-url-remota" placeholder="https://script.google.com/macros/s/.../exec">
+                <button id="btn-guardar-url-remota" class="btn">Guardar URL</button>
+            </div>
+            <p id="estado-sync-remota" style="font-size: 0.85em; text-align: center; margin-top: 8px; font-weight: bold;"></p>
+        </div>
+
         <div class="config-seccion">
             <h4>Monto del Premio:</h4>
             <div class="input-group">
@@ -278,6 +293,26 @@
         const inputsTemaSorteo = document.querySelectorAll('input[name="tema-sorteo"]');
         const formatMonto = (numero) => (Number(numero) || 0).toLocaleString('es-CL');
         const actualizarPreviewMonto = () => { montoPremioPreview.textContent = formatMonto(inputMontoPremio.value); };
+
+        // --- Sincronización remota (Google Apps Script), opcional ---
+        const inputUrlRemota = document.getElementById('input-url-remota');
+        const btnGuardarUrlRemota = document.getElementById('btn-guardar-url-remota');
+        const estadoSyncRemota = document.getElementById('estado-sync-remota');
+        const actualizarEstadoSyncRemota = () => {
+            const url = CanalSorteo.obtenerUrlRemota();
+            if (url) {
+                estadoSyncRemota.textContent = '🌐 Sincronización remota activa';
+                estadoSyncRemota.style.color = '#2ecc71';
+            } else {
+                estadoSyncRemota.textContent = 'Sin sincronización remota configurada (solo funciona en este dispositivo)';
+                estadoSyncRemota.style.color = '#95a5a6';
+            }
+        };
+        const guardarUrlRemota = () => {
+            CanalSorteo.configurarUrlRemota(inputUrlRemota.value);
+            actualizarEstadoSyncRemota();
+            alert('¡URL de sincronización remota guardada en este dispositivo!');
+        };
 
         // --- Lógica de Control de Ventana ---
         function lanzarPantallaSorteo() { if (sorteoWindow && !sorteoWindow.closed) { sorteoWindow.focus(); return; } sorteoWindow = window.open('sorteo.html', 'Sorteo', 'fullscreen=yes,menubar=no,toolbar=no,location=no,status=no'); if (!sorteoWindow) { alert("El navegador bloqueó la ventana emergente."); return; } }
@@ -439,7 +474,8 @@
         document.getElementById('btn-agregar-color-22').addEventListener('click', () => agregarOpcion('lista-colores-22', 'colores-ruleta-22', coloresRuleta22, 'nuevo-color-nombre-22-input', 'nuevo-color-hex-22-input'));
         document.getElementById('btn-agregar-color-23').addEventListener('click', () => agregarOpcion('lista-colores-23', 'colores-ruleta-23', coloresRuleta23, 'nuevo-color-nombre-23-input', 'nuevo-color-hex-23-input'));
         inputMontoPremio.addEventListener('input', actualizarPreviewMonto);
-        
+        btnGuardarUrlRemota.addEventListener('click', guardarUrlRemota);
+
         document.addEventListener('DOMContentLoaded', () => {
             cargarDatos();
             generarSelectores('lista-mesas-juego', todasLasMesas, 'mesas-en-juego');
@@ -448,6 +484,8 @@
             generarSelectores('lista-colores-23', coloresRuleta23, 'colores-ruleta-23');
             aplicarSeleccionesGuardadas();
             actualizarStatusPantalla();
+            inputUrlRemota.value = CanalSorteo.obtenerUrlRemota();
+            actualizarEstadoSyncRemota();
         });
     </script>
 </body>

@@ -153,6 +153,24 @@
             z-index: 5;
             pointer-events: none;
         }
+
+        #btn-config-remota {
+            position: fixed;
+            top: 8px;
+            right: 8px;
+            z-index: 6;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(0, 0, 0, 0.35);
+            color: #ecf0f1;
+            font-size: 1.1em;
+            cursor: pointer;
+            opacity: 0.35;
+            transition: opacity 0.2s;
+        }
+        #btn-config-remota:hover { opacity: 0.9; }
     </style>
 </head>
 <body>
@@ -163,6 +181,8 @@
         <div id="reel-mesa" class="reel-caja"><span class="reel-texto">—</span></div>
         <div id="reel-ganador" class="reel-caja"><span class="reel-texto">—</span></div>
     </div>
+
+    <button id="btn-config-remota" title="Configurar sincronización remota">⚙</button>
 
     <div id="mensaje-estado" class="mensaje-estado">Haz clic en cualquier lugar para iniciar el sorteo</div>
 
@@ -429,6 +449,7 @@
             if (!mensaje || !mensaje.tipo) return;
             switch (mensaje.tipo) {
                 case 'config-actualizada':
+                    try { localStorage.setItem('mesasMillonariasData', JSON.stringify(mensaje.datos)); } catch (e) { /* ignorar */ }
                     aplicarDatos(mensaje.datos);
                     break;
                 case 'iniciar-sorteo':
@@ -441,6 +462,16 @@
         });
 
         document.body.addEventListener('click', realizarSorteo);
+
+        document.getElementById('btn-config-remota').addEventListener('click', (e) => {
+            e.stopPropagation();
+            const actual = CanalSorteo.obtenerUrlRemota();
+            const nueva = prompt('URL de sincronización remota (Google Apps Script):', actual);
+            if (nueva !== null) {
+                CanalSorteo.configurarUrlRemota(nueva);
+                alert(nueva.trim() ? '¡Sincronización remota configurada en esta pantalla!' : 'Sincronización remota desactivada en esta pantalla.');
+            }
+        });
 
         document.addEventListener('DOMContentLoaded', () => {
             cargarDatosLocalStorage();
