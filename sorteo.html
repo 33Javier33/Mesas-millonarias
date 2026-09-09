@@ -273,6 +273,7 @@
             ubicar(cajaSubtituloEl, tema.subtitulo);
             ubicar(cajaMesa, tema.reelMesa);
             ubicar(cajaGanador, tema.reelGanador);
+            ajustarTamano(cajaSubtituloEl.querySelector('span'), false);
         };
 
         const aplicarDatos = (data) => {
@@ -283,8 +284,9 @@
                     generarClasesColores(originalName, value);
                 });
             }
-            textoMontoPremio.textContent = formatMonto(obtenerMontoPremio());
             aplicarTema(datosSorteo.temaSorteo);
+            textoMontoPremio.textContent = formatMonto(obtenerMontoPremio());
+            ajustarTamano(textoMontoPremio, false);
         };
 
         const cargarDatosLocalStorage = () => {
@@ -301,17 +303,20 @@
         const iniciarConfetiContinuo = () => { for (let i = 0; i < 50; i++) crearConfettiParticula(); confettiInterval = setInterval(crearConfettiParticula, 100); };
         const detenerConfetiContinuo = () => { clearInterval(confettiInterval); confettiContainer.innerHTML = ''; };
 
-        // Reduce el tamaño de fuente hasta que el texto entre, en una sola línea,
-        // tanto en el ancho como en el alto disponibles dentro de la caja.
-        const ajustarTamano = (elementoTexto) => {
+        // Reduce el tamaño de fuente solo lo justo para que el texto entre en una
+        // sola línea dentro del ancho de la caja (y, si se pide, también su alto).
+        // No achica nada si el texto ya cabe: es una red de seguridad contra
+        // cortes, no un tamaño "ajustado a medida" en cada render.
+        const ajustarTamano = (elementoTexto, verificarAlto = true) => {
             elementoTexto.style.fontSize = '';
             const contenedor = elementoTexto.parentElement;
             const estiloContenedor = getComputedStyle(contenedor);
             const paddingHorizontal = parseFloat(estiloContenedor.paddingLeft) + parseFloat(estiloContenedor.paddingRight);
             const disponibleAncho = contenedor.clientWidth - paddingHorizontal - 4;
             // La caja no tiene padding vertical propio; dejamos un margen (18%) para que
-            // el texto no toque el marco decorativo de arriba/abajo.
-            const disponibleAlto = contenedor.clientHeight * 0.82;
+            // el texto no toque el marco decorativo de arriba/abajo (solo aplica a las
+            // tómbolas, que sí están encajadas dentro de un marco ajustado).
+            const disponibleAlto = verificarAlto ? contenedor.clientHeight * 0.82 : Infinity;
             let tamano = parseFloat(getComputedStyle(elementoTexto).fontSize);
 
             const ancho = elementoTexto.scrollWidth;
@@ -321,7 +326,7 @@
             }
             // El alto de una línea de texto es ~1.05 veces el tamaño de fuente (line-height).
             const altoLinea = tamano * 1.05;
-            if (altoLinea > disponibleAlto && disponibleAlto > 0) {
+            if (altoLinea > disponibleAlto) {
                 tamano = Math.max(10, Math.floor(tamano * disponibleAlto / altoLinea));
                 elementoTexto.style.fontSize = tamano + 'px';
             }
@@ -483,6 +488,8 @@
 
         window.addEventListener('resize', () => {
             [textoMesa, textoGanador].forEach((el) => { if (el.textContent && el.textContent !== '—') ajustarTamano(el); });
+            ajustarTamano(textoMontoPremio, false);
+            ajustarTamano(cajaSubtituloEl.querySelector('span'), false);
         });
     </script>
 </body>
