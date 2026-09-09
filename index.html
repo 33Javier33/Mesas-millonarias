@@ -64,6 +64,7 @@
         }
         #status-pantalla.conectado { background-color: #27ae60; color: white; }
         #status-pantalla.desconectado { background-color: #c0392b; color: white; }
+        #status-pantalla.girando { background-color: #e67e22; color: white; }
 
         .btn {
             background-color: #2c3e50; color: white; padding: 10px 15px;
@@ -94,6 +95,7 @@
         .btn-guardar { background-color: #3498db; width: 100%; margin-top: 20px; padding: 15px; font-size: 1.2em; }
         .btn-guardar:hover { background-color: #2980b9; }
     </style>
+    <script src="canal.js"></script>
 </head>
 <body>
     <div class="contenedor-configuracion">
@@ -172,6 +174,15 @@
         const statusPantalla = document.getElementById('status-pantalla');
         const btnIniciarSorteo = document.getElementById('btn-iniciar-sorteo');
 
+        // --- Conexión estable con la pantalla de sorteo vía CanalSorteo ---
+        // En vez de depender de la referencia de la ventana (que se pierde
+        // si esta página se recarga), escuchamos un "latido" periódico que
+        // envía sorteo.html mientras esté abierta, sin importar en qué
+        // pestaña/ventana se haya abierto.
+        const LATIDO_TIMEOUT_MS = 4000;
+        let ultimoLatido = 0;
+        let estadoSorteoRemoto = 'listo'; // 'listo' | 'girando'
+
         const defaultData = {
             mesas: [ 'Blackjack 17', 'Blackjack 15', 'Blackjack 34', 'Draw-Poker 7', 'Draw-Poker 12', 'Hold\'em-Poker 8', 'Caribbean-Poker 13', 'Ruleta 21', 'Ruleta 22', 'Ruleta 23', 'Ruleta 24', 'Ruleta 25' ],
             colores21: ['Lila', 'Amarillo', 'Rojo', 'Verde', 'Azul', 'Plomo', 'Naranjo', 'Burdeo'],
@@ -182,12 +193,62 @@
 
         let todasLasMesas, coloresRuleta21, coloresRuleta22, coloresRuleta23, colorMap;
 
-        // --- Lógica de Control de Ventana (sin cambios) ---
-        function lanzarPantallaSorteo() { if (sorteoWindow && !sorteoWindow.closed) { sorteoWindow.focus(); return; } sorteoWindow = window.open('sorteo.html', 'Sorteo', 'fullscreen=yes,menubar=no,toolbar=no,location=no,status=no'); if (!sorteoWindow) { alert("El navegador bloqueó la ventana emergente."); return; } actualizarStatusPantalla(); }
-        function actualizarStatusPantalla() { if (sorteoWindow && !sorteoWindow.closed) { statusPantalla.textContent = 'Conectado'; statusPantalla.className = 'conectado'; btnLanzar.textContent = 'Enfocar Pantalla'; btnIniciarSorteo.disabled = false; } else { statusPantalla.textContent = 'Desconectado'; statusPantalla.className = 'desconectado'; btnLanzar.textContent = 'Lanzar Pantalla'; btnPremio.disabled = true; btnIniciarSorteo.disabled = true; sorteoWindow = null; } }
-        window.sorteoTerminado = function() { btnPremio.disabled = false; btnIniciarSorteo.disabled = false; }
-        function entregarPremio() { if (sorteoWindow && !sorteoWindow.closed) { sorteoWindow.entregarPremio(); btnPremio.disabled = true; } else { alert('La pantalla de sorteo no está abierta.'); } }
-        function iniciarSorteoRemoto() { if (sorteoWindow && !sorteoWindow.closed) { sorteoWindow.iniciarSorteoRemoto(); btnPremio.disabled = true; btnIniciarSorteo.disabled = true; } else { alert('La pantalla de sorteo no está abierta.'); } }
+        // --- Lógica de Control de Ventana ---
+        function lanzarPantallaSorteo() { if (sorteoWindow && !sorteoWindow.closed) { sorteoWindow.focus(); return; } sorteoWindow = window.open('sorteo.html', 'Sorteo', 'fullscreen=yes,menubar=no,toolbar=no,location=no,status=no'); if (!sorteoWindow) { alert("El navegador bloqueó la ventana emergente."); return; } }
+
+        function actualizarStatusPantalla() {
+            const conectado = (Date.now() - ultimoLatido) < LATIDO_TIMEOUT_MS;
+            btnLanzar.textContent = (sorteoWindow && !sorteoWindow.closed) ? 'Enfocar Pantalla' : 'Lanzar Pantalla';
+
+            if (conectado) {
+                const girando = estadoSorteoRemoto === 'girando';
+                statusPantalla.textContent = girando ? 'Sorteando...' : 'Conectado';
+                statusPantalla.className = girando ? 'girando' : 'conectado';
+                btnIniciarSorteo.disabled = girando;
+            } else {
+                statusPantalla.textContent = 'Desconectado';
+                statusPantalla.className = 'desconectado';
+                btnIniciarSorteo.disabled = true;
+                btnPremio.disabled = true;
+            }
+        }
+
+        function entregarPremio() {
+            if ((Date.now() - ultimoLatido) >= LATIDO_TIMEOUT_MS) { alert('La pantalla de sorteo no está conectada.'); return; }
+            CanalSorteo.enviar({ tipo: 'entregar-premio' });
+            btnPremio.disabled = true;
+        }
+        function iniciarSorteoRemoto() {
+            if ((Date.now() - ultimoLatido) >= LATIDO_TIMEOUT_MS) { alert('La pantalla de sorteo no está conectada.'); return; }
+            CanalSorteo.enviar({ tipo: 'iniciar-sorteo' });
+            btnPremio.disabled = true;
+            btnIniciarSorteo.disabled = true;
+        }
+
+        CanalSorteo.escuchar((mensaje) => {
+            if (!mensaje || !mensaje.tipo) return;
+            switch (mensaje.tipo) {
+                case 'latido':
+                    ultimoLatido = Date.now();
+                    estadoSorteoRemoto = mensaje.estado || 'listo';
+                    break;
+                case 'sorteo-iniciado':
+                    estadoSorteoRemoto = 'girando';
+                    btnIniciarSorteo.disabled = true;
+                    btnPremio.disabled = true;
+                    break;
+                case 'sorteo-terminado':
+                    estadoSorteoRemoto = 'listo';
+                    btnPremio.disabled = false;
+                    btnIniciarSorteo.disabled = false;
+                    break;
+                case 'premio-entregado':
+                    btnPremio.disabled = true;
+                    break;
+            }
+            actualizarStatusPantalla();
+        });
+
         setInterval(actualizarStatusPantalla, 1000);
 
         const guardarDatos = () => {
@@ -203,9 +264,7 @@
                 checkedColores23: Array.from(document.querySelectorAll('input[name="colores-ruleta-23"]:checked')).map(cb => cb.value),
             };
             localStorage.setItem('mesasMillonariasData', JSON.stringify(data));
-            if (sorteoWindow && !sorteoWindow.closed) {
-                sorteoWindow.location.reload();
-            }
+            CanalSorteo.enviar({ tipo: 'config-actualizada', datos: data });
             alert('¡Configuración guardada y sincronizada!');
         };
 
