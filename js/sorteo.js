@@ -28,7 +28,27 @@ const elegirSinRepetir = (lista, ultimoValor) => {
 };
 
 const formatColorName = (name) => { if (typeof name !== 'string') return ''; return name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-'); };
-const generarClasesColores = (colorName, hexCode) => { const formattedName = formatColorName(colorName); if(hexCode && !cssSheet.innerHTML.includes(`.color-${formattedName}`)){ cssSheet.innerHTML += ` .color-${formattedName} { color: ${hexCode} !important; }`; } };
+// Colores oscuros (ej. Negro) son invisibles sobre el fondo oscuro de las
+// cajas en Tema 2 y Tema 3, así que se les agrega un halo/contorno claro
+// para que resalten. Sobre el fondo blanco del Tema Original ese halo
+// claro se funde con el blanco y no afecta en nada.
+const obtenerLuminancia = (hex) => {
+    const h = (hex || '').replace('#', '');
+    if (h.length !== 6) return 1;
+    const r = parseInt(h.substring(0, 2), 16), g = parseInt(h.substring(2, 4), 16), b = parseInt(h.substring(4, 6), 16);
+    return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+};
+const generarClasesColores = (colorName, hexCode) => {
+    const formattedName = formatColorName(colorName);
+    if (hexCode && !cssSheet.innerHTML.includes(`.color-${formattedName}`)) {
+        const esOscuro = obtenerLuminancia(hexCode) < 0.35;
+        const contorno = esOscuro ? 'rgba(255, 255, 255, 0.95)' : 'rgba(0, 0, 0, 0.3)';
+        const halo = esOscuro
+            ? '0 0 8px rgba(255, 255, 255, 0.75), 0 0 3px rgba(255, 255, 255, 0.9)'
+            : '0 0 4px rgba(0, 0, 0, 0.65), 0 0 2px rgba(0, 0, 0, 0.8)';
+        cssSheet.innerHTML += ` .color-${formattedName} { color: ${hexCode} !important; -webkit-text-stroke: 1px ${contorno} !important; text-shadow: ${halo} !important; }`;
+    }
+};
 const formatMonto = (numero) => (Number(numero) || 0).toLocaleString('es-CL');
 const obtenerMontoPremio = () => (datosSorteo.montoPremio !== undefined && datosSorteo.montoPremio !== null) ? datosSorteo.montoPremio : 100000;
 
