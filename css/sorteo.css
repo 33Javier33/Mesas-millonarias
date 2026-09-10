@@ -1,0 +1,165 @@
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+}
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #ecf0f1;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+/* ==== Escenario: mantiene la proporción exacta de la imagen de fondo (el tamaño exacto lo fija JS según el tema activo) ==== */
+.escenario-sorteo {
+    position: relative;
+    container-type: inline-size;
+}
+.fondo-imagen {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+/* ==== Monto del premio y subtítulo, superpuestos sobre el fondo (posición la fija JS según el tema) ==== */
+.texto-monto, .texto-subtitulo {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+.texto-monto span {
+    font-weight: 900;
+    font-style: italic;
+    font-size: 9.5cqw;
+    line-height: 1;
+    white-space: nowrap;
+    background: linear-gradient(180deg, #fff8d6 0%, #f6da70 28%, #dcaa42 58%, #b1791f 82%, #7c4b10 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 3px 4px 0 rgba(70, 35, 5, 0.55);
+}
+.texto-subtitulo span {
+    font-weight: 800;
+    font-style: italic;
+    font-size: 4.4cqw;
+    line-height: 1;
+    white-space: nowrap;
+    background: linear-gradient(180deg, #fff8d6 0%, #f6da70 35%, #dcaa42 70%, #b1791f 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 2px 2px 0 rgba(70, 35, 5, 0.5);
+}
+
+/* ==== Cajas de la tómbola (posición la fija JS según el tema activo) ==== */
+.reel-caja {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 0 2%;
+    box-sizing: border-box;
+    border-radius: 12px;
+}
+
+.reel-texto {
+    font-weight: 800;
+    text-transform: uppercase;
+    line-height: 1.05;
+    text-align: center;
+    text-shadow: 0 0 2px rgba(0,0,0,0.35);
+    -webkit-text-stroke: 0.4px rgba(0,0,0,0.25);
+    font-size: 7.5cqw;
+    white-space: nowrap;
+    max-width: 100%;
+}
+/* Color por defecto de las tómbolas: oscuro sobre recuadro blanco (tema original)
+   o dorado brillante sobre recuadro oscuro (temas 2 y 3). Los resultados de color
+   de ruleta siempre pisan esto vía su propia clase .color-xxxx !important. */
+.escenario-sorteo.tema-original .reel-texto { color: #7a1120; }
+.escenario-sorteo.tema-tema2 .reel-texto,
+.escenario-sorteo.tema-tema3 .reel-texto {
+    color: #f6da70;
+    text-shadow: 0 0 4px rgba(0,0,0,0.65), 0 0 2px rgba(0,0,0,0.8);
+}
+
+.reel-caja.reel-girando .reel-texto {
+    animation: reel-pulso 0.15s linear infinite;
+}
+@keyframes reel-pulso {
+    from { transform: scale(1); }
+    to { transform: scale(1.04); }
+}
+
+.reel-caja.reel-ganadora {
+    animation: reel-iluminar 1.3s infinite alternate;
+}
+@keyframes reel-iluminar {
+    from { box-shadow: 0 0 6px 2px rgba(243, 156, 18, 0.55); }
+    to { box-shadow: 0 0 16px 6px rgba(243, 156, 18, 0.9); }
+}
+
+/* ==== Mensaje de estado, debajo del escenario ==== */
+.mensaje-estado {
+    margin-top: 18px;
+    max-width: 90vw;
+    background-color: rgba(13, 26, 38, 0.75);
+    border: 1px solid #4a627d;
+    border-radius: 10px;
+    padding: 10px 24px;
+    font-size: 1.1em;
+    font-weight: bold;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    min-height: 1.4em;
+}
+.mensaje-estado .subtexto { display: block; font-size: 0.75em; font-weight: normal; margin-top: 4px; color: #ecf0f1; }
+
+.confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 3; overflow: hidden; }
+.confetti { position: absolute; width: 8px; height: 8px; background-color: #f39c12; animation: fall 5s linear infinite; top: -20px; left: 50%; transform: translateX(-50%) rotate(0deg); will-change: transform, opacity; }
+@keyframes fall {
+    0% { transform: translateX(var(--x)) translateY(0) rotate(var(--deg)); opacity: 1; }
+    100% { transform: translateX(var(--x-end)) translateY(110vh) rotate(var(--deg-end)); opacity: 0; }
+}
+
+footer {
+    position: fixed;
+    bottom: 6px;
+    width: 100%;
+    text-align: center;
+    color: #ecf0f1;
+    opacity: 0.6;
+    font-size: 0.8em;
+    z-index: 5;
+    pointer-events: none;
+}
+
+#btn-config-remota {
+    position: fixed;
+    top: 8px;
+    right: 8px;
+    z-index: 6;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0, 0, 0, 0.35);
+    color: #ecf0f1;
+    font-size: 1.1em;
+    cursor: pointer;
+    opacity: 0.35;
+    transition: opacity 0.2s;
+}
+#btn-config-remota:hover { opacity: 0.9; }
