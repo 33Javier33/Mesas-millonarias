@@ -24,6 +24,8 @@ const defaultData = {
     duracionGanador: 3,
     confetiActivado: true,
     mensajeEstadoActivado: true,
+    fuegosArtificialesActivado: true,
+    confetiExplosivoActivado: true,
     temaSorteo: 'original'
 };
 
@@ -34,6 +36,8 @@ const inputDuracionMesa = document.getElementById('input-duracion-mesa');
 const inputDuracionGanador = document.getElementById('input-duracion-ganador');
 const inputConfetiActivado = document.getElementById('input-confeti-activado');
 const inputMensajeActivado = document.getElementById('input-mensaje-activado');
+const inputFuegosActivado = document.getElementById('input-fuegos-activado');
+const inputConfetiExplosivoActivado = document.getElementById('input-confeti-explosivo-activado');
 const inputsTemaSorteo = document.querySelectorAll('input[name="tema-sorteo"]');
 const formatMonto = (numero) => (Number(numero) || 0).toLocaleString('es-CL');
 const actualizarPreviewMonto = () => { montoPremioPreview.textContent = formatMonto(inputMontoPremio.value); };
@@ -121,6 +125,8 @@ const guardarDatos = () => {
         duracionGanador: parseFloat(inputDuracionGanador.value) || defaultData.duracionGanador,
         confetiActivado: inputConfetiActivado.checked,
         mensajeEstadoActivado: inputMensajeActivado.checked,
+        fuegosArtificialesActivado: inputFuegosActivado.checked,
+        confetiExplosivoActivado: inputConfetiExplosivoActivado.checked,
         temaSorteo: (document.querySelector('input[name="tema-sorteo"]:checked') || {}).value || defaultData.temaSorteo,
         checkedMesas: Array.from(document.querySelectorAll('input[name="mesas-en-juego"]:checked')).map(cb => cb.value),
         checkedColores21: Array.from(document.querySelectorAll('input[name="colores-ruleta-21"]:checked')).map(cb => cb.value),
@@ -146,14 +152,20 @@ const cargarDatos = () => {
     inputDuracionGanador.value = (data.duracionGanador !== undefined && data.duracionGanador !== null) ? data.duracionGanador : defaultData.duracionGanador;
     inputConfetiActivado.checked = (data.confetiActivado !== undefined && data.confetiActivado !== null) ? !!data.confetiActivado : defaultData.confetiActivado;
     inputMensajeActivado.checked = (data.mensajeEstadoActivado !== undefined && data.mensajeEstadoActivado !== null) ? !!data.mensajeEstadoActivado : defaultData.mensajeEstadoActivado;
+    inputFuegosActivado.checked = (data.fuegosArtificialesActivado !== undefined && data.fuegosArtificialesActivado !== null) ? !!data.fuegosArtificialesActivado : defaultData.fuegosArtificialesActivado;
+    inputConfetiExplosivoActivado.checked = (data.confetiExplosivoActivado !== undefined && data.confetiExplosivoActivado !== null) ? !!data.confetiExplosivoActivado : defaultData.confetiExplosivoActivado;
     const temaGuardado = data.temaSorteo || defaultData.temaSorteo;
     inputsTemaSorteo.forEach((input) => { input.checked = (input.value === temaGuardado); });
     actualizarPreviewMonto();
 };
 
+// Ojo: solo se resetean los checkboxes de las listas dinámicas (mesas y
+// colores). Los checkboxes de efectos (confeti, mensaje, fuegos, etc.) ya
+// los deja correctos cargarDatos() y no deben tocarse aquí.
+const SELECTOR_CHECKBOXES_LISTAS = 'input[name="mesas-en-juego"], input[name="colores-ruleta-21"], input[name="colores-ruleta-22"], input[name="colores-ruleta-23"]';
 const aplicarSeleccionesGuardadas = () => {
     const storedData = localStorage.getItem('mesasMillonariasData');
-    document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+    document.querySelectorAll(SELECTOR_CHECKBOXES_LISTAS).forEach(cb => cb.checked = false);
     if (storedData) {
         const data = JSON.parse(storedData);
         (data.checkedMesas || []).forEach(val => { const cb = document.querySelector(`input[name="mesas-en-juego"][value="${val}"]`); if (cb) cb.checked = true; });
@@ -161,7 +173,7 @@ const aplicarSeleccionesGuardadas = () => {
         (data.checkedColores22 || []).forEach(val => { const cb = document.querySelector(`input[name="colores-ruleta-22"][value="${val}"]`); if (cb) cb.checked = true; });
         (data.checkedColores23 || []).forEach(val => { const cb = document.querySelector(`input[name="colores-ruleta-23"][value="${val}"]`); if (cb) cb.checked = true; });
     } else {
-         document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = true);
+         document.querySelectorAll(SELECTOR_CHECKBOXES_LISTAS).forEach(cb => cb.checked = true);
     }
 };
 

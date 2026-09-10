@@ -178,6 +178,51 @@ body {
     50% { opacity: 1; }
 }
 
+/* ==== Fuegos artificiales sutiles y confeti explosivo de fondo (solo Tema
+   2 y 3; el Tema Original ya tiene sus propias luces). Los estallidos los
+   crea js/sorteo.js cada cierto tiempo aleatorio; aquí solo se define cómo
+   se ve y se anima cada partícula ==== */
+.fuegos-artificiales, .confeti-ambiente { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 1; display: none; }
+.escenario-sorteo.tema-tema2 .fuegos-artificiales,
+.escenario-sorteo.tema-tema2 .confeti-ambiente,
+.escenario-sorteo.tema-tema3 .fuegos-artificiales,
+.escenario-sorteo.tema-tema3 .confeti-ambiente { display: block; }
+
+.fuego-estallido { position: absolute; width: 0; height: 0; }
+.fuego-estallido .chispa {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0.35cqw;
+    height: 0.35cqw;
+    border-radius: 50%;
+    background: var(--color, #ffe9a8);
+    box-shadow: 0 0 0.6cqw 0.15cqw var(--color, #ffe9a8);
+    transform: translate(-50%, -50%);
+    animation: chispa-vuelo 1.15s ease-out forwards;
+}
+@keyframes chispa-vuelo {
+    0% { transform: translate(-50%, -50%) translate(0, 0) scale(1); opacity: 1; }
+    70% { opacity: 0.9; }
+    100% { transform: translate(-50%, -50%) translate(var(--dx), var(--dy)) scale(0.25); opacity: 0; }
+}
+
+.confeti-origen { position: absolute; width: 0; height: 0; }
+.confeti-pieza {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0.55cqw;
+    height: 0.55cqw;
+    background: var(--color, #f39c12);
+    transform: translate(-50%, -50%);
+    animation: confeti-estallido 1.5s cubic-bezier(0.22, 0.75, 0.35, 1) forwards;
+}
+@keyframes confeti-estallido {
+    0% { transform: translate(-50%, -50%) translate(0, 0) rotate(0deg); opacity: 1; }
+    100% { transform: translate(-50%, -50%) translate(var(--dx), var(--dy)) rotate(var(--rot)); opacity: 0; }
+}
+
 .confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 3; overflow: hidden; }
 .confetti { position: absolute; width: 8px; height: 8px; background-color: #f39c12; animation: fall 5s linear infinite; top: -20px; left: 50%; transform: translateX(-50%) rotate(0deg); will-change: transform, opacity; }
 @keyframes fall {
