@@ -369,16 +369,6 @@ CanalSorteo.escuchar((mensaje) => {
 
 document.body.addEventListener('click', realizarSorteo);
 
-document.getElementById('btn-config-remota').addEventListener('click', (e) => {
-    e.stopPropagation();
-    const actual = CanalSorteo.obtenerUrlRemota();
-    const nueva = prompt('La sincronización remota ya viene conectada automáticamente.\nSolo edita esto si quieres usar otro backend en esta pantalla:', actual);
-    if (nueva !== null) {
-        CanalSorteo.configurarUrlRemota(nueva);
-        alert('¡Listo! Esta pantalla usará esa URL de sincronización remota.');
-    }
-});
-
 document.addEventListener('DOMContentLoaded', () => {
     cargarDatosLocalStorage();
     // Latido: informa al panel de control que esta pantalla sigue activa.
