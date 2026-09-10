@@ -92,6 +92,7 @@ const aplicarDatos = (data) => {
     aplicarTema(datosSorteo.temaSorteo);
     textoMontoPremio.textContent = formatMonto(obtenerMontoPremio());
     ajustarTamano(textoMontoPremio, false);
+    mensajeEstado.classList.toggle('mensaje-oculto', datosSorteo.mensajeEstadoActivado === false);
 };
 
 const cargarDatosLocalStorage = () => {

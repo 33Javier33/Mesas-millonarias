@@ -111,21 +111,72 @@ body {
     to { box-shadow: 0 0 16px 6px rgba(243, 156, 18, 0.9); }
 }
 
-/* ==== Mensaje de estado, debajo del escenario ==== */
+/* ==== Mensaje de estado, integrado como una franja inferior dentro de la
+   imagen (estilo "zócalo" de TV) para que no desentone con ningún tema ==== */
 .mensaje-estado {
-    margin-top: 18px;
-    max-width: 90vw;
-    background-color: rgba(13, 26, 38, 0.75);
-    border: 1px solid #4a627d;
-    border-radius: 10px;
-    padding: 10px 24px;
-    font-size: 1.1em;
-    font-weight: bold;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 4;
+    box-sizing: border-box;
+    padding: 2.4cqw 6cqw 1.6cqw;
+    background: linear-gradient(180deg, rgba(8, 10, 16, 0) 0%, rgba(8, 10, 16, 0.55) 45%, rgba(6, 8, 13, 0.85) 100%);
+    font-size: 2.1cqw;
+    font-weight: 700;
     text-align: center;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-    min-height: 1.4em;
+    line-height: 1.3;
+    color: #fdf3d0;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    pointer-events: none;
+    transition: opacity 0.2s ease;
 }
-.mensaje-estado .subtexto { display: block; font-size: 0.75em; font-weight: normal; margin-top: 4px; color: #ecf0f1; }
+.mensaje-estado .subtexto { display: block; font-size: 0.68em; font-weight: 500; margin-top: 0.3em; opacity: 0.85; color: #ecf0f1; text-shadow: none; }
+.mensaje-estado.mensaje-oculto { display: none; }
+/* Tema 3 deja mucho menos espacio libre bajo las tómbolas que los otros temas,
+   así que aquí la franja va más compacta para no montarse sobre las cajas. */
+.escenario-sorteo.tema-tema3 .mensaje-estado {
+    padding: 0.6cqw 5cqw 0.4cqw;
+    font-size: 1.6cqw;
+    line-height: 1.15;
+}
+.escenario-sorteo.tema-tema3 .mensaje-estado .subtexto { margin-top: 0.15em; }
+
+/* ==== Efectos de luces ambientales (solo Tema Original: los otros temas ya
+   traen rayos de luz incorporados en su imagen de fondo) ==== */
+.luces-ambiente { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 1; display: none; }
+.escenario-sorteo.tema-original .luces-ambiente { display: block; }
+.luces-ambiente::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 45% at 50% 28%, rgba(255, 214, 130, 0.22), transparent 65%);
+    animation: brillo-pulso 4s ease-in-out infinite;
+}
+.luces-ambiente .haz {
+    position: absolute;
+    top: -25%;
+    left: 50%;
+    width: 12%;
+    height: 150%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0) 72%);
+    mix-blend-mode: screen;
+    filter: blur(6px);
+    opacity: 0.5;
+    transform-origin: top center;
+    animation: haz-barrer 9s ease-in-out infinite;
+}
+.luces-ambiente .haz-1 { left: 18%; animation-delay: -1.5s; }
+.luces-ambiente .haz-2 { left: 50%; animation-delay: -4.5s; background: linear-gradient(180deg, rgba(246, 218, 112, 0.45), rgba(246, 218, 112, 0) 72%); }
+.luces-ambiente .haz-3 { left: 80%; animation-delay: -7.5s; }
+@keyframes haz-barrer {
+    0%, 100% { transform: translateX(-6%) rotate(-9deg); opacity: 0.32; }
+    50% { transform: translateX(6%) rotate(9deg); opacity: 0.6; }
+}
+@keyframes brillo-pulso {
+    0%, 100% { opacity: 0.55; }
+    50% { opacity: 1; }
+}
 
 .confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 3; overflow: hidden; }
 .confetti { position: absolute; width: 8px; height: 8px; background-color: #f39c12; animation: fall 5s linear infinite; top: -20px; left: 50%; transform: translateX(-50%) rotate(0deg); will-change: transform, opacity; }

@@ -23,6 +23,7 @@ const defaultData = {
     duracionMesa: 3,
     duracionGanador: 3,
     confetiActivado: true,
+    mensajeEstadoActivado: true,
     temaSorteo: 'original'
 };
 
@@ -32,6 +33,7 @@ const montoPremioPreview = document.getElementById('monto-premio-preview');
 const inputDuracionMesa = document.getElementById('input-duracion-mesa');
 const inputDuracionGanador = document.getElementById('input-duracion-ganador');
 const inputConfetiActivado = document.getElementById('input-confeti-activado');
+const inputMensajeActivado = document.getElementById('input-mensaje-activado');
 const inputsTemaSorteo = document.querySelectorAll('input[name="tema-sorteo"]');
 const formatMonto = (numero) => (Number(numero) || 0).toLocaleString('es-CL');
 const actualizarPreviewMonto = () => { montoPremioPreview.textContent = formatMonto(inputMontoPremio.value); };
@@ -118,6 +120,7 @@ const guardarDatos = () => {
         duracionMesa: parseFloat(inputDuracionMesa.value) || defaultData.duracionMesa,
         duracionGanador: parseFloat(inputDuracionGanador.value) || defaultData.duracionGanador,
         confetiActivado: inputConfetiActivado.checked,
+        mensajeEstadoActivado: inputMensajeActivado.checked,
         temaSorteo: (document.querySelector('input[name="tema-sorteo"]:checked') || {}).value || defaultData.temaSorteo,
         checkedMesas: Array.from(document.querySelectorAll('input[name="mesas-en-juego"]:checked')).map(cb => cb.value),
         checkedColores21: Array.from(document.querySelectorAll('input[name="colores-ruleta-21"]:checked')).map(cb => cb.value),
@@ -142,6 +145,7 @@ const cargarDatos = () => {
     inputDuracionMesa.value = (data.duracionMesa !== undefined && data.duracionMesa !== null) ? data.duracionMesa : defaultData.duracionMesa;
     inputDuracionGanador.value = (data.duracionGanador !== undefined && data.duracionGanador !== null) ? data.duracionGanador : defaultData.duracionGanador;
     inputConfetiActivado.checked = (data.confetiActivado !== undefined && data.confetiActivado !== null) ? !!data.confetiActivado : defaultData.confetiActivado;
+    inputMensajeActivado.checked = (data.mensajeEstadoActivado !== undefined && data.mensajeEstadoActivado !== null) ? !!data.mensajeEstadoActivado : defaultData.mensajeEstadoActivado;
     const temaGuardado = data.temaSorteo || defaultData.temaSorteo;
     inputsTemaSorteo.forEach((input) => { input.checked = (input.value === temaGuardado); });
     actualizarPreviewMonto();
