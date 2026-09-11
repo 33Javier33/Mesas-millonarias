@@ -9,10 +9,15 @@
 </head>
 <body>
     <div class="contenedor-configuracion">
-        <h3>Panel de Control</h3>
+        <div class="encabezado-panel">
+            <h3>Panel de Control</h3>
+            <button type="button" class="btn-manual" id="btn-manual">📖 Manual de Uso</button>
+        </div>
 
         <div class="control-seccion">
-            <h4>Control de Pantalla de Sorteo</h4>
+            <h4>Control de Pantalla de Sorteo
+                <button type="button" class="btn-ayuda" data-ayuda="control-pantalla" aria-label="Ayuda sobre esta sección">?</button>
+            </h4>
             <div class="control-botones">
                 <button id="btn-lanzar-pantalla" class="btn">Lanzar Pantalla</button>
                 <button id="btn-iniciar-sorteo" class="btn" title="Iniciar Sorteo" disabled>▶️ Iniciar Sorteo</button>
@@ -28,6 +33,7 @@
                     <label for="input-monto-premio">💰 Premio:</label>
                     <input type="number" id="input-monto-premio" min="0" step="1000" placeholder="Ej: 100000">
                     <span id="monto-premio-preview" class="monto-preview"></span>
+                    <button type="button" class="btn-ayuda" data-ayuda="premio" aria-label="Ayuda sobre el premio">?</button>
                 </div>
                 <div class="input-group">
                     <label for="input-duracion-mesa">⏱️ Mesa (seg):</label>
@@ -36,32 +42,40 @@
                 <div class="input-group">
                     <label for="input-duracion-ganador">⏱️ Ganador (seg):</label>
                     <input type="number" id="input-duracion-ganador" min="1" max="20" step="0.5">
+                    <button type="button" class="btn-ayuda" data-ayuda="duracion" aria-label="Ayuda sobre los tiempos de la tómbola">?</button>
                 </div>
                 <label class="input-group check-confeti">
                     <input type="checkbox" id="input-confeti-activado">
                     🎊 Confeti
+                    <button type="button" class="btn-ayuda" data-ayuda="confeti" aria-label="Ayuda sobre el confeti">?</button>
                 </label>
                 <label class="input-group check-confeti">
                     <input type="checkbox" id="input-mensaje-activado">
                     💬 Mensaje
+                    <button type="button" class="btn-ayuda" data-ayuda="mensaje" aria-label="Ayuda sobre el mensaje">?</button>
                 </label>
                 <label class="input-group check-confeti" title="Destellos sutiles tipo fuegos artificiales (solo se ven en Tema 2 y Tema 3)">
                     <input type="checkbox" id="input-fuegos-activado">
                     🎆 Fuegos
+                    <button type="button" class="btn-ayuda" data-ayuda="efectos-tema23" aria-label="Ayuda sobre los fuegos artificiales">?</button>
                 </label>
                 <label class="input-group check-confeti" title="Ráfagas de confeti explosivo de fondo (solo se ven en Tema 2 y Tema 3)">
                     <input type="checkbox" id="input-confeti-explosivo-activado">
                     🎇 Confeti explosivo
+                    <button type="button" class="btn-ayuda" data-ayuda="efectos-tema23" aria-label="Ayuda sobre el confeti explosivo">?</button>
                 </label>
             </div>
 
             <div class="iconos-avanzados">
                 <button type="button" class="btn-icono" id="btn-sync-remota-avanzado" title="Sincronización remota: ya viene conectada automáticamente. Click solo para usar un backend distinto en este dispositivo.">🌐</button>
+                <button type="button" class="btn-ayuda" data-ayuda="sync-avanzado" aria-label="Ayuda sobre la sincronización remota">?</button>
             </div>
         </div>
 
         <details class="config-seccion">
-            <summary class="resumen-seccion">Tema de la Pantalla de Sorteo</summary>
+            <summary class="resumen-seccion">Tema de la Pantalla de Sorteo
+                <button type="button" class="btn-ayuda" data-ayuda="temas" aria-label="Ayuda sobre los temas">?</button>
+            </summary>
             <div class="selector-temas" id="selector-temas">
                 <label class="tema-opcion">
                     <input type="radio" name="tema-sorteo" value="original">
@@ -81,7 +95,9 @@
             </div>
         </details>
         <details class="config-seccion" open>
-            <summary class="resumen-seccion">Mesas en juego</summary>
+            <summary class="resumen-seccion">Mesas en juego
+                <button type="button" class="btn-ayuda" data-ayuda="mesas-en-juego" aria-label="Ayuda sobre las mesas en juego">?</button>
+            </summary>
             <div class="botones-opciones">
                 <button class="btn-opcion" onclick="toggleCheckboxes('mesas-en-juego', true)">Seleccionar todos</button>
                 <button class="btn-opcion" onclick="toggleCheckboxes('mesas-en-juego', false)">Desmarcar todos</button>
@@ -93,7 +109,9 @@
             </div>
         </details>
         <details class="config-seccion" open>
-            <summary class="resumen-seccion">Colores de Ruletas</summary>
+            <summary class="resumen-seccion">Colores de Ruletas
+                <button type="button" class="btn-ayuda" data-ayuda="colores-ruletas" aria-label="Ayuda sobre los colores de ruleta">?</button>
+            </summary>
             <details>
                 <summary class="resumen-subseccion">Ruleta 21, 24 y 25</summary>
                 <div class="botones-opciones">
@@ -137,6 +155,55 @@
     </div>
     <div class="barra-guardar-flotante">
         <button id="btn-guardar" class="btn btn-guardar">Guardar y Sincronizar</button>
+        <button type="button" class="btn-ayuda" data-ayuda="guardar" aria-label="Ayuda sobre guardar">?</button>
+    </div>
+
+    <div class="modal-overlay" id="modal-ayuda">
+        <div class="modal-caja">
+            <button type="button" class="modal-cerrar" id="modal-ayuda-cerrar" aria-label="Cerrar">✕</button>
+            <h4 id="modal-ayuda-titulo"></h4>
+            <div id="modal-ayuda-texto"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal-manual">
+        <div class="modal-caja modal-caja-grande">
+            <button type="button" class="modal-cerrar" id="modal-manual-cerrar" aria-label="Cerrar">✕</button>
+            <h3>📖 Manual de Uso — Mesas Millonarias</h3>
+            <div class="manual-contenido">
+                <h4>¿Qué es todo esto?</h4>
+                <p>Este <strong>Panel de Control</strong> es donde tú decides qué va a pasar. La pantalla grande que ven los clientes (en un TV o monitor) se llama la <strong>Pantalla de Sorteo</strong>. Todo lo que configures y aprietes aquí se refleja allá, aunque estén en dispositivos distintos.</p>
+
+                <h4>Antes de tu primer sorteo del día</h4>
+                <ol>
+                    <li>Aprieta <strong>"Lanzar Pantalla"</strong>. Se abrirá la Pantalla de Sorteo: muéstrala en el TV o monitor que ven los clientes (pantalla completa).</li>
+                    <li>Revisa que el indicador diga <strong>"Conectado"</strong> en verde. Si dice "Desconectado" en rojo, esa pantalla no está abierta o no está respondiendo — revisa el paso 1.</li>
+                    <li>Revisa que las <strong>mesas</strong> y los <strong>colores de ruleta</strong> marcados sean los correctos para el turno de hoy.</li>
+                    <li>Si algo cambió, aprieta <strong>"Guardar y Sincronizar"</strong> (el botón grande de abajo). Sin este paso, ningún cambio se aplica.</li>
+                </ol>
+
+                <h4>Cómo hacer un sorteo, paso a paso</h4>
+                <ol>
+                    <li>Aprieta <strong>"▶️ Iniciar Sorteo"</strong>. En la pantalla grande vas a ver la tómbola "MESA" girando y deteniéndose en una mesa al azar.</li>
+                    <li>Después gira sola la tómbola "GANADOR" (un color de ruleta, o un puesto del 1 al 6 si salió Blackjack, Poker, etc.) y se detiene en el resultado.</li>
+                    <li>Anuncia el resultado a los clientes como lo hacen siempre.</li>
+                    <li>Cuando el cliente ganador retira su premio en caja, aprieta el botón <strong>🎉 (Entregar Premio)</strong>. La pantalla mostrará un mensaje de premio entregado y luego volverá sola a su estado inicial, lista para el próximo sorteo.</li>
+                </ol>
+                <p>No es necesario tocar nada más: los pasos 1 y 2 son automáticos, tú solo aprietas los botones en el momento indicado.</p>
+
+                <h4>Personalizar la Pantalla de Sorteo</h4>
+                <p>En <strong>"Tema de la Pantalla de Sorteo"</strong> puedes elegir entre 3 fondos distintos para la pantalla grande. En <strong>"Control de Pantalla de Sorteo"</strong> puedes ajustar el monto del premio, cuánto tiempo gira cada tómbola, y activar o desactivar el confeti, el mensaje de estado, y los efectos de fuegos artificiales / confeti explosivo (estos últimos dos solo se ven si el tema elegido es "Tema 2" o "Tema 3"). Cada uno de estos controles tiene su propio botón <strong>"?"</strong> al lado con más detalle.</p>
+
+                <h4>Agregar o quitar mesas y colores</h4>
+                <p>Dentro de <strong>"Mesas en juego"</strong> y <strong>"Colores de Ruletas"</strong> puedes desmarcar lo que no esté en uso, y también agregar o eliminar mesas/colores nuevos escribiendo el nombre (y el color, en el caso de las ruletas) y apretando "Agregar". Para eliminar uno, pasa el mouse o el dedo sobre él y aprieta la ✕ que aparece. Recuerda apretar <strong>"Guardar y Sincronizar"</strong> al terminar.</p>
+
+                <h4>Solución de problemas comunes</h4>
+                <p><strong>"Lanzar Pantalla" no hace nada o dice que se bloqueó una ventana emergente:</strong> el navegador está bloqueando la ventana nueva. Busca el aviso de "ventana emergente bloqueada" (usualmente arriba, junto a la barra de direcciones) y permite las ventanas emergentes para este sitio.</p>
+                <p><strong>El indicador dice "Desconectado":</strong> la Pantalla de Sorteo no está abierta, se cerró, o se cortó la conexión a internet en ese dispositivo. Vuelve a abrirla con "Lanzar Pantalla" y espera unos segundos.</p>
+                <p><strong>Guardé cambios pero no se ven en la pantalla grande:</strong> revisa que diga "Conectado" antes de guardar. Si estaba desconectada, vuelve a apretar "Guardar y Sincronizar" una vez que se reconecte.</p>
+                <p><strong>Un color no se ve bien en la pantalla:</strong> revisa que el color tenga buen contraste; los colores muy oscuros como el negro ya se ajustan solos para verse bien en todos los temas.</p>
+            </div>
+        </div>
     </div>
 
     <script src="js/index.js"></script>

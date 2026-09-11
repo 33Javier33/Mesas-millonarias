@@ -39,6 +39,13 @@ body {
     max-width: 700px;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
 }
+.barra-guardar-flotante {
+    align-items: center;
+    gap: 10px;
+}
+.barra-guardar-flotante .btn-ayuda {
+    pointer-events: auto;
+}
 h3, h4 {
     color: #f39c12;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
@@ -105,6 +112,7 @@ details[open] > summary.resumen-subseccion::after { transform: rotate(90deg); }
     gap: 10px;
     justify-content: center;
     align-items: center;
+    flex-wrap: wrap;
 }
 .tiempos-suspenso {
     display: flex;
@@ -182,3 +190,94 @@ details[open] > summary.resumen-subseccion::after { transform: rotate(90deg); }
 .tema-opcion img { width: 100%; height: 85px; object-fit: cover; display: block; }
 .tema-opcion span { display: block; padding: 6px 4px; font-size: 0.85em; font-weight: bold; }
 .btn-guardar:hover { background-color: #2980b9; }
+
+/* ==== Encabezado del panel y botón de Manual de Uso ==== */
+.encabezado-panel { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.encabezado-panel h3 { margin: 0; }
+.btn-manual {
+    background-color: #2c4059;
+    color: #ecf0f1;
+    border: 1px solid #4a627d;
+    border-radius: 20px;
+    padding: 7px 16px;
+    font-size: 0.85em;
+    font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.btn-manual:hover { background-color: #375170; }
+
+/* ==== Botones "?" de ayuda: pequeños, siempre visibles, pensados para
+   tocarse con el dedo (no dependen de pasar el mouse por encima) ==== */
+.btn-ayuda {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    border-radius: 50%;
+    border: 1.5px solid #f39c12;
+    background: rgba(243, 156, 18, 0.15);
+    color: #f39c12;
+    font-size: 0.72em;
+    font-weight: 800;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
+}
+.btn-ayuda:hover, .btn-ayuda:focus-visible { background: rgba(243, 156, 18, 0.35); }
+h4 .btn-ayuda, .resumen-seccion .btn-ayuda { margin-left: 6px; vertical-align: middle; }
+.tiempos-suspenso label.check-confeti { position: relative; }
+
+/* ==== Modales (ayuda puntual y manual de uso completo) ==== */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 10, 16, 0.72);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+.modal-overlay.visible { display: flex; }
+.modal-caja {
+    background-color: #1f3246;
+    border: 1px solid #4a627d;
+    border-radius: 14px;
+    padding: 22px 24px;
+    max-width: 460px;
+    width: 100%;
+    max-height: 82vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+.modal-caja-grande { max-width: 680px; }
+.modal-cerrar {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.08);
+    color: #ecf0f1;
+    font-size: 1em;
+    cursor: pointer;
+}
+.modal-cerrar:hover { background: rgba(255,255,255,0.18); }
+.modal-caja h4 { margin-top: 0; color: #f39c12; padding-right: 30px; }
+.modal-caja h3 { margin-top: 0; color: #f39c12; padding-right: 30px; }
+#modal-ayuda-texto p { line-height: 1.5; margin: 0; }
+.manual-contenido { line-height: 1.55; }
+.manual-contenido h4 { color: #f6da70; margin: 20px 0 8px; }
+.manual-contenido h4:first-child { margin-top: 0; }
+.manual-contenido p { margin: 6px 0; }
+.manual-contenido ol, .manual-contenido ul { margin: 6px 0; padding-left: 22px; }
+.manual-contenido li { margin-bottom: 6px; }
+.manual-contenido strong { color: #f6da70; }

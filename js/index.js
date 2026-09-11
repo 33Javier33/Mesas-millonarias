@@ -236,3 +236,95 @@ document.addEventListener('DOMContentLoaded', () => {
     aplicarSeleccionesGuardadas();
     actualizarStatusPantalla();
 });
+
+// --- Ayuda contextual ("?") y Manual de Uso ---
+// Textos pensados para alguien que nunca ha usado el sistema: explican qué
+// hace cada control y qué esperar en pantalla, sin tecnicismos.
+const TEXTOS_AYUDA = {
+    'control-pantalla': {
+        titulo: 'Control de Pantalla de Sorteo',
+        texto: '<p><strong>Lanzar Pantalla</strong> abre la Pantalla de Sorteo: la ventana que debes mostrar en el TV o monitor que ven los clientes.</p>' +
+            '<p>El indicador <strong>Conectado / Desconectado</strong> te dice si esa pantalla está abierta y respondiendo. Si dice "Desconectado", ábrela de nuevo con "Lanzar Pantalla".</p>' +
+            '<p><strong>▶️ Iniciar Sorteo</strong> hace girar las tómbolas (mesa y ganador) en la pantalla grande. Se activa solo cuando hay conexión.</p>' +
+            '<p><strong>🎉 Entregar Premio</strong> se aprieta cuando el cliente ya retiró su premio: muestra un aviso de "premio entregado" y deja la pantalla lista para el próximo sorteo.</p>',
+    },
+    premio: {
+        titulo: '💰 Premio',
+        texto: '<p>Es el monto que se muestra en la Pantalla de Sorteo (por ejemplo, "100.000"). Cámbialo aquí antes de guardar si el premio del día es distinto.</p>',
+    },
+    duracion: {
+        titulo: '⏱️ Duración de las tómbolas',
+        texto: '<p>Controla cuántos segundos gira cada tómbola antes de detenerse: "Mesa" es la que elige la mesa ganadora, y "Ganador" es la que elige el color de ruleta o el puesto ganador.</p>' +
+            '<p>Un valor más alto genera más suspenso; un valor más bajo hace el sorteo más rápido.</p>',
+    },
+    confeti: {
+        titulo: '🎊 Confeti',
+        texto: '<p>Cuando está activado, cae confeti en la pantalla en el momento en que se revela el ganador, como celebración. Desactívalo si prefieres una pantalla más sobria.</p>',
+    },
+    mensaje: {
+        titulo: '💬 Mensaje',
+        texto: '<p>Es el aviso de texto que aparece dentro de la Pantalla de Sorteo (por ejemplo "Girando la tómbola..." o "¡Tenemos ganador!"). Desactívalo si no quieres que se muestre ningún texto de estado ahí.</p>',
+    },
+    'efectos-tema23': {
+        titulo: '🎆 Fuegos y 🎇 Confeti explosivo',
+        texto: '<p>Son animaciones decorativas de fondo que aparecen solas, de vez en cuando, mientras la Pantalla de Sorteo está inactiva.</p>' +
+            '<p><strong>Ojo:</strong> solo se ven cuando el tema elegido es "Tema 2" o "Tema 3". En el "Tema Original" no aparecen (ese tema ya tiene sus propias luces).</p>',
+    },
+    'sync-avanzado': {
+        titulo: '🌐 Sincronización remota (avanzado)',
+        texto: '<p>La sincronización entre este panel y la Pantalla de Sorteo ya viene conectada automáticamente: <strong>no necesitas tocar este botón para el uso normal</strong>.</p>' +
+            '<p>Solo úsalo si un técnico te pide apuntar este dispositivo a otro servidor de sincronización distinto.</p>',
+    },
+    temas: {
+        titulo: 'Tema de la Pantalla de Sorteo',
+        texto: '<p>Elige el fondo visual que se muestra en la pantalla grande: Original, Tema 2 o Tema 3. Haz clic en la imagen que prefieras y luego aprieta "Guardar y Sincronizar".</p>',
+    },
+    'mesas-en-juego': {
+        titulo: 'Mesas en juego',
+        texto: '<p>Aquí marcas qué mesas pueden salir sorteadas hoy. Solo las mesas marcadas participan; las desmarcadas se ignoran.</p>' +
+            '<p>Puedes agregar una mesa nueva escribiendo su nombre abajo y apretando "Agregar", o eliminar una existente con la ✕ que aparece al pasar el mouse o el dedo sobre ella.</p>',
+    },
+    'colores-ruletas': {
+        titulo: 'Colores de Ruletas',
+        texto: '<p>Cada grupo de mesas de ruleta (21-24-25, 22 y 23) tiene su propia lista de colores posibles. Cuando el sorteo elige una de esas mesas, el color ganador se sortea solo entre los colores marcados de su grupo.</p>' +
+            '<p>Marca o desmarca colores, o agrega uno nuevo con su nombre y su color exacto usando el selector de color.</p>',
+    },
+    guardar: {
+        titulo: 'Guardar y Sincronizar',
+        texto: '<p><strong>Ningún cambio que hagas en este panel se aplica hasta que aprietes este botón.</strong> Úsalo siempre después de modificar mesas, colores, premio, tiempos, efectos o el tema.</p>',
+    },
+};
+
+const modalAyuda = document.getElementById('modal-ayuda');
+const modalAyudaTitulo = document.getElementById('modal-ayuda-titulo');
+const modalAyudaTexto = document.getElementById('modal-ayuda-texto');
+const modalManual = document.getElementById('modal-manual');
+
+const mostrarAyuda = (clave) => {
+    const contenido = TEXTOS_AYUDA[clave];
+    if (!contenido) return;
+    modalAyudaTitulo.textContent = contenido.titulo;
+    modalAyudaTexto.innerHTML = contenido.texto;
+    modalAyuda.classList.add('visible');
+};
+const cerrarModales = () => {
+    modalAyuda.classList.remove('visible');
+    modalManual.classList.remove('visible');
+};
+
+document.querySelectorAll('.btn-ayuda').forEach((boton) => {
+    boton.addEventListener('click', (e) => {
+        // Varios botones "?" viven dentro de un <summary>: sin esto, el
+        // clic también abriría/cerraría esa sección de golpe.
+        e.preventDefault();
+        e.stopPropagation();
+        mostrarAyuda(boton.dataset.ayuda);
+    });
+});
+document.getElementById('btn-manual').addEventListener('click', () => modalManual.classList.add('visible'));
+document.getElementById('modal-ayuda-cerrar').addEventListener('click', () => modalAyuda.classList.remove('visible'));
+document.getElementById('modal-manual-cerrar').addEventListener('click', () => modalManual.classList.remove('visible'));
+[modalAyuda, modalManual].forEach((overlay) => {
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('visible'); });
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') cerrarModales(); });
