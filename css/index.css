@@ -231,6 +231,29 @@ details[open] > summary.resumen-subseccion::after { transform: rotate(90deg); }
 h4 .btn-ayuda, .resumen-seccion .btn-ayuda { margin-left: 6px; vertical-align: middle; }
 .tiempos-suspenso label.check-confeti { position: relative; }
 
+/* ==== Aviso flotante: la configuración se sincronizó desde otro dispositivo ==== */
+.aviso-sync {
+    position: fixed;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background: rgba(31, 50, 70, 0.97);
+    border: 1px solid #f39c12;
+    color: #ecf0f1;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 0.9em;
+    font-weight: bold;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+    z-index: 300;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    max-width: 90vw;
+    text-align: center;
+}
+.aviso-sync.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+
 /* ==== Modales (ayuda puntual y manual de uso completo) ==== */
 .modal-overlay {
     display: none;

@@ -90,6 +90,9 @@ function iniciarSorteoRemoto() {
 CanalSorteo.escuchar((mensaje) => {
     if (!mensaje || !mensaje.tipo) return;
     switch (mensaje.tipo) {
+        case 'config-actualizada':
+            refrescarPanelDesdeConfig(mensaje.datos);
+            break;
         case 'latido':
             ultimoLatido = Date.now();
             estadoSorteoRemoto = mensaje.estado || 'listo';
@@ -175,6 +178,35 @@ const aplicarSeleccionesGuardadas = () => {
     } else {
          document.querySelectorAll(SELECTOR_CHECKBOXES_LISTAS).forEach(cb => cb.checked = true);
     }
+};
+
+// --- Reflejar en este panel lo que otro dispositivo acaba de guardar ---
+// Sin esto, si dos dispositivos tienen el panel abierto, el que no guardó
+// último sigue viendo su configuración vieja en pantalla (aunque ya no sea
+// la real) y, si esa persona aprieta "Guardar", pisa sin querer el cambio
+// del otro. Al recibir "config-actualizada" volvemos a leer todo desde
+// localStorage y a redibujar el panel, igual que al cargar la página.
+const avisoSync = document.getElementById('aviso-sync');
+let avisoSyncTimeout = null;
+const mostrarAvisoSincronizado = () => {
+    if (!avisoSync) return;
+    avisoSync.textContent = '🔄 La configuración se actualizó desde otro dispositivo.';
+    avisoSync.classList.add('visible');
+    clearTimeout(avisoSyncTimeout);
+    avisoSyncTimeout = setTimeout(() => avisoSync.classList.remove('visible'), 4500);
+};
+const refrescarPanelDesdeConfig = (datos) => {
+    if (!datos) return;
+    const nuevoJson = JSON.stringify(datos);
+    if (nuevoJson === localStorage.getItem('mesasMillonariasData')) return; // ya lo teníamos (ej. el eco de nuestro propio guardado)
+    localStorage.setItem('mesasMillonariasData', nuevoJson);
+    cargarDatos();
+    generarSelectores('lista-mesas-juego', todasLasMesas, 'mesas-en-juego');
+    generarSelectores('lista-colores-21', coloresRuleta21, 'colores-ruleta-21');
+    generarSelectores('lista-colores-22', coloresRuleta22, 'colores-ruleta-22');
+    generarSelectores('lista-colores-23', coloresRuleta23, 'colores-ruleta-23');
+    aplicarSeleccionesGuardadas();
+    mostrarAvisoSincronizado();
 };
 
 const formatColorName = (name) => { if (typeof name !== 'string') return ''; return name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-'); };
