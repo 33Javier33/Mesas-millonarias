@@ -192,8 +192,9 @@ details[open] > summary.resumen-subseccion::after { transform: rotate(90deg); }
 .btn-guardar:hover { background-color: #2980b9; }
 
 /* ==== Encabezado del panel y botón de Manual de Uso ==== */
-.encabezado-panel { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.encabezado-panel { position: relative; display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; padding-right: 52px; }
 .encabezado-panel h3 { margin: 0; }
+.logo-marca { position: absolute; top: -4px; right: 0; height: 44px; width: auto; opacity: 0.92; }
 .btn-manual {
     background-color: #2c4059;
     color: #ecf0f1;
