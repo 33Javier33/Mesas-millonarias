@@ -243,3 +243,21 @@ footer {
     z-index: 5;
     pointer-events: none;
 }
+
+#btn-fullscreen {
+    position: fixed;
+    top: 8px;
+    right: 8px;
+    z-index: 6;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0, 0, 0, 0.35);
+    color: #ecf0f1;
+    font-size: 1.1em;
+    cursor: pointer;
+    opacity: 0.35;
+    transition: opacity 0.2s;
+}
+#btn-fullscreen:hover { opacity: 0.9; }

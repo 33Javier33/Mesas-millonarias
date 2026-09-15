@@ -367,7 +367,22 @@ CanalSorteo.escuchar((mensaje) => {
     }
 });
 
-document.body.addEventListener('click', realizarSorteo);
+// El sorteo ahora se inicia solo desde el botón "▶️ Iniciar Sorteo" del
+// panel de control; tocar la pantalla aquí la pone en pantalla completa.
+const btnFullscreen = document.getElementById('btn-fullscreen');
+const alternarPantallaCompleta = () => {
+    if (document.fullscreenElement) {
+        document.exitFullscreen();
+    } else {
+        document.documentElement.requestFullscreen().catch(() => { /* el navegador bloqueó el pedido; se ignora */ });
+    }
+};
+document.addEventListener('fullscreenchange', () => {
+    btnFullscreen.textContent = document.fullscreenElement ? '⛝' : '⛶';
+    btnFullscreen.title = document.fullscreenElement ? 'Salir de pantalla completa' : 'Pantalla completa';
+});
+btnFullscreen.addEventListener('click', (e) => { e.stopPropagation(); alternarPantallaCompleta(); });
+document.body.addEventListener('click', alternarPantallaCompleta);
 
 document.addEventListener('DOMContentLoaded', () => {
     cargarDatosLocalStorage();
