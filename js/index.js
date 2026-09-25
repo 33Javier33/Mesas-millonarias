@@ -13,6 +13,21 @@ const LATIDO_TIMEOUT_MS = 6000;
 let ultimoLatido = 0;
 let estadoSorteoRemoto = 'listo'; // 'listo' | 'girando'
 
+// Al presionar "Iniciar Sorteo" pasa hasta ~1-1.5s antes de que la pantalla
+// de sorteo confirme que ya está girando. Si en ese lapso llega un latido
+// con el estado "listo" que quedó desactualizado (se envió justo antes de
+// que el comando surtiera efecto), actualizarStatusPantalla() volvía a
+// habilitar el botón sin querer, dejando una ventana breve en la que un
+// segundo toque/clic disparaba OTRO sorteo. Esta bandera evita eso: una vez
+// enviado el comando, el botón queda deshabilitado hasta la confirmación
+// real (o hasta un máximo de espera, por si esa confirmación se pierde).
+let comandoIniciarPendiente = false;
+let comandoIniciarTimeoutId = null;
+const limpiarComandoIniciarPendiente = () => {
+    comandoIniciarPendiente = false;
+    if (comandoIniciarTimeoutId) { clearTimeout(comandoIniciarTimeoutId); comandoIniciarTimeoutId = null; }
+};
+
 const defaultData = {
     mesas: [ 'Blackjack 17', 'Blackjack 15', 'Blackjack 34', 'Draw-Poker 7', 'Draw-Poker 12', 'Hold\'em-Poker 8', 'Caribbean-Poker 13', 'Ruleta 21', 'Ruleta 22', 'Ruleta 23', 'Ruleta 24', 'Ruleta 25' ],
     colores21: ['Lila', 'Amarillo', 'Rojo', 'Verde', 'Azul', 'Plomo', 'Naranjo', 'Burdeo'],
@@ -63,7 +78,7 @@ function actualizarStatusPantalla() {
     btnLanzar.textContent = (sorteoWindow && !sorteoWindow.closed) ? 'Enfocar Pantalla' : 'Lanzar Pantalla';
 
     if (conectado) {
-        const girando = estadoSorteoRemoto === 'girando';
+        const girando = estadoSorteoRemoto === 'girando' || comandoIniciarPendiente;
         statusPantalla.textContent = girando ? 'Sorteando...' : 'Conectado';
         statusPantalla.className = girando ? 'girando' : 'conectado';
         btnIniciarSorteo.disabled = girando;
@@ -72,6 +87,7 @@ function actualizarStatusPantalla() {
         statusPantalla.className = 'desconectado';
         btnIniciarSorteo.disabled = true;
         btnPremio.disabled = true;
+        limpiarComandoIniciarPendiente();
     }
 }
 
@@ -82,9 +98,16 @@ function entregarPremio() {
 }
 function iniciarSorteoRemoto() {
     if ((Date.now() - ultimoLatido) >= LATIDO_TIMEOUT_MS) { alert('La pantalla de sorteo no está conectada.'); return; }
+    // Evita que un doble clic/doble toque, o un segundo intento mientras la
+    // confirmación de la pantalla todavía no llega, dispare otro sorteo.
+    if (comandoIniciarPendiente || estadoSorteoRemoto === 'girando') return;
+    comandoIniciarPendiente = true;
     CanalSorteo.enviar({ tipo: 'iniciar-sorteo' });
     btnPremio.disabled = true;
     btnIniciarSorteo.disabled = true;
+    // Respaldo: si por algún motivo nunca llega "sorteo-iniciado" (ej. se
+    // perdió el mensaje), no dejamos el botón deshabilitado para siempre.
+    comandoIniciarTimeoutId = setTimeout(() => { comandoIniciarPendiente = false; actualizarStatusPantalla(); }, 8000);
 }
 
 CanalSorteo.escuchar((mensaje) => {
@@ -98,11 +121,13 @@ CanalSorteo.escuchar((mensaje) => {
             estadoSorteoRemoto = mensaje.estado || 'listo';
             break;
         case 'sorteo-iniciado':
+            limpiarComandoIniciarPendiente();
             estadoSorteoRemoto = 'girando';
             btnIniciarSorteo.disabled = true;
             btnPremio.disabled = true;
             break;
         case 'sorteo-terminado':
+            limpiarComandoIniciarPendiente();
             estadoSorteoRemoto = 'listo';
             btnPremio.disabled = false;
             btnIniciarSorteo.disabled = false;
