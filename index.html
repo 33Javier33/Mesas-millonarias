@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mesas Millonarias - Panel de Control</title>
-    <link rel="stylesheet" href="css/index.css?v=20260930">
+    <link rel="stylesheet" href="css/index.css?v=202609300137">
     <script src="canal.js?v=20260930"></script>
 </head>
 <body>
@@ -120,10 +120,14 @@
                     <button class="btn-opcion" onclick="toggleCheckboxes('colores-ruleta-21', false)">Desmarcar todos</button>
                 </div>
                 <ul class="lista-opciones" id="lista-colores-21"></ul>
-                <div class="input-group">
-                    <input type="text" id="nuevo-color-nombre-21-input" placeholder="Nombre del color">
-                    <input type="color" id="nuevo-color-hex-21-input" value="#e66465">
-                    <button class="btn btn-agregar" id="btn-agregar-color-21">Agregar</button>
+                <div class="agregar-color-grupo">
+                    <input type="text" id="nuevo-color-nombre-21-input" placeholder="Nombre del color (ej: Damasco)">
+                    <div class="fila-color-hex">
+                        <input type="color" id="nuevo-color-hex-21-input" value="#e66465" title="Elegir con el selector visual">
+                        <input type="text" id="nuevo-color-hex-21-texto" class="input-hex" placeholder="#RRGGBB" maxlength="7" title="Escribe el código exacto si lo conoces">
+                        <span class="vista-previa-color" id="nuevo-color-preview-21">Vista previa</span>
+                    </div>
+                    <button class="btn btn-agregar" id="btn-agregar-color-21">➕ Agregar color</button>
                 </div>
             </details>
             <details>
@@ -133,10 +137,14 @@
                     <button class="btn-opcion" onclick="toggleCheckboxes('colores-ruleta-22', false)">Desmarcar todos</button>
                 </div>
                 <ul class="lista-opciones" id="lista-colores-22"></ul>
-                <div class="input-group">
-                    <input type="text" id="nuevo-color-nombre-22-input" placeholder="Nombre del color">
-                    <input type="color" id="nuevo-color-hex-22-input" value="#f6b73c">
-                    <button class="btn btn-agregar" id="btn-agregar-color-22">Agregar</button>
+                <div class="agregar-color-grupo">
+                    <input type="text" id="nuevo-color-nombre-22-input" placeholder="Nombre del color (ej: Damasco)">
+                    <div class="fila-color-hex">
+                        <input type="color" id="nuevo-color-hex-22-input" value="#f6b73c" title="Elegir con el selector visual">
+                        <input type="text" id="nuevo-color-hex-22-texto" class="input-hex" placeholder="#RRGGBB" maxlength="7" title="Escribe el código exacto si lo conoces">
+                        <span class="vista-previa-color" id="nuevo-color-preview-22">Vista previa</span>
+                    </div>
+                    <button class="btn btn-agregar" id="btn-agregar-color-22">➕ Agregar color</button>
                 </div>
             </details>
             <details>
@@ -146,10 +154,14 @@
                     <button class="btn-opcion" onclick="toggleCheckboxes('colores-ruleta-23', false)">Desmarcar todos</button>
                 </div>
                 <ul class="lista-opciones" id="lista-colores-23"></ul>
-                <div class="input-group">
-                    <input type="text" id="nuevo-color-nombre-23-input" placeholder="Nombre del color">
-                    <input type="color" id="nuevo-color-hex-23-input" value="#563cf6">
-                    <button class="btn btn-agregar" id="btn-agregar-color-23">Agregar</button>
+                <div class="agregar-color-grupo">
+                    <input type="text" id="nuevo-color-nombre-23-input" placeholder="Nombre del color (ej: Damasco)">
+                    <div class="fila-color-hex">
+                        <input type="color" id="nuevo-color-hex-23-input" value="#563cf6" title="Elegir con el selector visual">
+                        <input type="text" id="nuevo-color-hex-23-texto" class="input-hex" placeholder="#RRGGBB" maxlength="7" title="Escribe el código exacto si lo conoces">
+                        <span class="vista-previa-color" id="nuevo-color-preview-23">Vista previa</span>
+                    </div>
+                    <button class="btn btn-agregar" id="btn-agregar-color-23">➕ Agregar color</button>
                 </div>
             </details>
         </details>
@@ -209,6 +221,6 @@
         </div>
     </div>
 
-    <script src="js/index.js?v=20260930"></script>
+    <script src="js/index.js?v=202609300137"></script>
 </body>
 </html>

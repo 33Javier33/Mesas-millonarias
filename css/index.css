@@ -178,6 +178,18 @@ details[open] > summary.resumen-subseccion::after { transform: rotate(90deg); }
 .input-group { display: flex; gap: 10px; margin-top: 10px; align-items: center; }
 .input-group input[type="text"] { flex-grow: 1; padding: 8px; border-radius: 5px; border: 1px solid #4a627d; background-color: #1f3246; color: #ecf0f1; }
 .input-group input[type="color"] { min-width: 40px; height: 40px; padding: 2px; border-radius: 5px; border: 1px solid #4a627d; background-color: #1f3246; cursor: pointer; }
+
+/* ==== Agregar color: en filas separadas y con vista previa, para que sea
+   más fácil de usar que el selector de color solo (difícil de afinar a un
+   tono exacto, sobre todo en tablet) ==== */
+.agregar-color-grupo { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px dashed #4a627d; }
+.agregar-color-grupo > input[type="text"] { padding: 8px; border-radius: 5px; border: 1px solid #4a627d; background-color: #1f3246; color: #ecf0f1; }
+.fila-color-hex { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.fila-color-hex input[type="color"] { min-width: 40px; width: 40px; height: 40px; padding: 2px; border-radius: 5px; border: 1px solid #4a627d; background-color: #1f3246; cursor: pointer; flex-shrink: 0; }
+.input-hex { width: 90px; padding: 8px; border-radius: 5px; border: 1px solid #4a627d; background-color: #1f3246; color: #ecf0f1; text-transform: uppercase; font-family: monospace; }
+.input-hex.hex-invalido { border-color: #e74c3c; }
+.vista-previa-color { flex-grow: 1; min-width: 90px; padding: 8px 12px; border-radius: 5px; background-color: #14212f; border: 1px solid #4a627d; font-weight: bold; text-align: center; text-shadow: 0 0 3px rgba(0,0,0,0.7); }
+.agregar-color-grupo .btn-agregar { align-self: flex-start; }
 .botones-opciones { display: flex; gap: 10px; margin-bottom: 10px; justify-content: flex-start; }
 .btn-opcion { font-size: 0.9em; padding: 5px 10px; background-color: #555; color: white; border: none; border-radius: 5px; cursor: pointer; }
 .btn-guardar { background-color: #3498db; width: 100%; margin-top: 20px; padding: 15px; font-size: 1.2em; }

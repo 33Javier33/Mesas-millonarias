@@ -294,8 +294,52 @@ const agregarOpcion = (listId, checkboxName, dataArray, nombreInputId, hexInputI
     }
     dataArray.push(formattedValue);
     generarSelectores(listId, dataArray, checkboxName);
+    // Sin esto, lo recién agregado queda en la lista pero SIN marcar, así que
+    // no participa del sorteo hasta que alguien note que hay que tildarlo a
+    // mano — que es justo lo que hacía parecer que "no aparecía".
+    const nuevoCheckbox = document.querySelector(`input[name="${checkboxName}"][value="${CSS.escape(formattedValue)}"]`);
+    if (nuevoCheckbox) nuevoCheckbox.checked = true;
     nombreInputElement.value = '';
+    nombreInputElement.dispatchEvent(new Event('input'));
 };
+
+// --- Agregar color: además del selector visual (difícil de afinar a un tono
+// exacto, sobre todo en tablet), se puede escribir el código hex directo si
+// ya se sabe cuál es. Ambos quedan sincronizados y hay una vista previa en
+// vivo del nombre con ese color, para confirmar antes de agregar.
+const HEX_VALIDO = /^#[0-9A-Fa-f]{6}$/;
+const configurarAgregarColor = (sufijo) => {
+    const inputNombre = document.getElementById(`nuevo-color-nombre-${sufijo}-input`);
+    const inputColor = document.getElementById(`nuevo-color-hex-${sufijo}-input`);
+    const inputHexTexto = document.getElementById(`nuevo-color-hex-${sufijo}-texto`);
+    const preview = document.getElementById(`nuevo-color-preview-${sufijo}`);
+
+    const actualizarPreview = () => {
+        preview.textContent = inputNombre.value.trim() || 'Vista previa';
+        preview.style.color = HEX_VALIDO.test(inputHexTexto.value) ? inputHexTexto.value : inputColor.value;
+    };
+
+    inputHexTexto.value = inputColor.value.toUpperCase();
+    inputColor.addEventListener('input', () => {
+        inputHexTexto.value = inputColor.value.toUpperCase();
+        inputHexTexto.classList.remove('hex-invalido');
+        actualizarPreview();
+    });
+    inputHexTexto.addEventListener('input', () => {
+        let valor = inputHexTexto.value.trim();
+        if (valor && !valor.startsWith('#')) valor = '#' + valor;
+        if (HEX_VALIDO.test(valor)) {
+            inputHexTexto.classList.remove('hex-invalido');
+            inputColor.value = valor;
+        } else {
+            inputHexTexto.classList.add('hex-invalido');
+        }
+        actualizarPreview();
+    });
+    inputNombre.addEventListener('input', actualizarPreview);
+    actualizarPreview();
+};
+['21', '22', '23'].forEach(configurarAgregarColor);
 
 // --- Event Listeners ---
 btnLanzar.addEventListener('click', lanzarPantallaSorteo);
