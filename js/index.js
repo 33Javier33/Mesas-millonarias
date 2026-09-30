@@ -59,10 +59,8 @@ const defaultData = {
     mensajeEstadoActivado: true,
     fuegosArtificialesActivado: true,
     confetiExplosivoActivado: true,
-    temaSorteo: 'original',
-    panelPin: '2026'
+    temaSorteo: 'original'
 };
-let panelPinActual = defaultData.panelPin;
 
 let todasLasMesas, coloresRuleta21, coloresRuleta22, coloresRuleta23, colorMap, montoPremio;
 const inputMontoPremio = document.getElementById('input-monto-premio');
@@ -175,6 +173,13 @@ CanalSorteo.escuchar((mensaje) => {
         case 'premio-entregado':
             btnPremio.disabled = true;
             break;
+        case 'sesion-rechazada':
+            // El servidor no aceptó el cambio: la sesión venció o el PIN se
+            // cambió en otro dispositivo. Hay que volver a entrar y repetirlo.
+            bloquearPanel(mensaje.campo === 'config'
+                ? 'Tu sesión venció y el cambio NO se guardó. Ingresa el PIN y vuelve a apretar "Guardar y Sincronizar".'
+                : 'Tu sesión venció. Ingresa el PIN de nuevo y, si la pantalla no reaccionó, repite la orden.');
+            break;
     }
     actualizarStatusPantalla();
 });
@@ -200,7 +205,6 @@ const guardarDatos = () => {
         checkedColores21: Array.from(document.querySelectorAll('input[name="colores-ruleta-21"]:checked')).map(cb => cb.value),
         checkedColores22: Array.from(document.querySelectorAll('input[name="colores-ruleta-22"]:checked')).map(cb => cb.value),
         checkedColores23: Array.from(document.querySelectorAll('input[name="colores-ruleta-23"]:checked')).map(cb => cb.value),
-        panelPin: panelPinActual,
     };
     localStorage.setItem('mesasMillonariasData', JSON.stringify(data));
     CanalSorteo.enviar({ tipo: 'config-actualizada', datos: data });
@@ -251,7 +255,6 @@ const cargarDatos = () => {
     const temaGuardado = data.temaSorteo || defaultData.temaSorteo;
     inputsTemaSorteo.forEach((input) => { input.checked = (input.value === temaGuardado); });
     actualizarPreviewMonto();
-    panelPinActual = (data.panelPin !== undefined && data.panelPin !== null && String(data.panelPin).trim() !== '') ? String(data.panelPin) : defaultData.panelPin;
 };
 
 // Ojo: solo se resetean los checkboxes de las listas dinámicas (mesas y
@@ -465,7 +468,8 @@ const TEXTOS_AYUDA = {
     'seguridad-pin': {
         titulo: '🔒 Seguridad del Panel',
         texto: '<p>Aquí puedes cambiar el PIN de 4 dígitos que pide este panel al abrirse (viene en <strong>2026</strong> por defecto). Escribe el nuevo PIN dos veces y aprieta "Cambiar PIN".</p>' +
-            '<p>El cambio se guarda y sincroniza al instante, así que el nuevo PIN va a pedirse en todos los dispositivos que usen este panel.</p>',
+            '<p>El PIN se guarda en el servidor, no en este dispositivo. Al cambiarlo, los demás dispositivos que tengan el panel abierto tendrán que ingresar el PIN nuevo.</p>' +
+            '<p>Si alguien se equivoca de PIN 10 veces seguidas, el ingreso queda bloqueado 15 minutos en todos los dispositivos (los que ya estaban dentro siguen funcionando).</p>',
     },
 };
 
@@ -473,6 +477,7 @@ const modalAyuda = document.getElementById('modal-ayuda');
 const modalAyudaTitulo = document.getElementById('modal-ayuda-titulo');
 const modalAyudaTexto = document.getElementById('modal-ayuda-texto');
 const modalManual = document.getElementById('modal-manual');
+const modalSeguridad = document.getElementById('modal-seguridad');
 
 const mostrarAyuda = (clave) => {
     const contenido = TEXTOS_AYUDA[clave];
@@ -484,6 +489,7 @@ const mostrarAyuda = (clave) => {
 const cerrarModales = () => {
     modalAyuda.classList.remove('visible');
     modalManual.classList.remove('visible');
+    modalSeguridad.classList.remove('visible');
 };
 
 document.querySelectorAll('.btn-ayuda').forEach((boton) => {
@@ -498,26 +504,54 @@ document.querySelectorAll('.btn-ayuda').forEach((boton) => {
 document.getElementById('btn-manual').addEventListener('click', () => modalManual.classList.add('visible'));
 document.getElementById('modal-ayuda-cerrar').addEventListener('click', () => modalAyuda.classList.remove('visible'));
 document.getElementById('modal-manual-cerrar').addEventListener('click', () => modalManual.classList.remove('visible'));
-[modalAyuda, modalManual].forEach((overlay) => {
+document.getElementById('btn-seguridad').addEventListener('click', () => modalSeguridad.classList.add('visible'));
+document.getElementById('modal-seguridad-cerrar').addEventListener('click', () => modalSeguridad.classList.remove('visible'));
+[modalAyuda, modalManual, modalSeguridad].forEach((overlay) => {
     overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('visible'); });
 });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') cerrarModales(); });
+document.getElementById('modal-seguridad-texto').innerHTML = TEXTOS_AYUDA['seguridad-pin'].texto;
 
 // --- Login por PIN de 4 dígitos ---
-// Es una protección simple: evita que cualquiera que abra esta página toque
-// la configuración sin el PIN. No es seguridad "real" (todo corre en el
-// navegador, como el resto de este panel), pero alcanza para que un
-// cliente o alguien sin autorización no pueda entrar por error o curiosidad.
-// El PIN viaja junto con el resto de la configuración (guardarDatos/
-// cargarDatos), así que cambiarlo lo sincroniza a todos los dispositivos.
+// El PIN vive solo en el backend (Google Apps Script): este panel nunca lo
+// conoce de antemano. Al ingresarlo se le pregunta al servidor, que si es
+// correcto entrega una "sesión"; sin ella el servidor rechaza los cambios
+// de configuración y los comandos de sorteo, aunque alguien llame a la URL
+// del backend directamente.
+//
+// Si no hay conexión con el servidor, se acepta el último PIN que funcionó
+// en este dispositivo (guardado como hash), para poder seguir usando el
+// panel con la pantalla de sorteo en el mismo navegador.
+const CLAVE_HASH_PIN = 'mesasMillonariasPinHash';
 let pinIngresado = '';
+let verificandoPin = false;
 const pinOverlay = document.getElementById('pin-overlay');
 const panelContenido = document.getElementById('panel-contenido');
 const pinDigitosEls = document.querySelectorAll('.pin-digito');
 const pinErrorEl = document.getElementById('pin-error');
 
+const hashPin = async (pin) => {
+    if (!window.crypto || !crypto.subtle) return null;
+    const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('mesas-millonarias:' + pin));
+    return Array.from(new Uint8Array(bytes)).map((b) => b.toString(16).padStart(2, '0')).join('');
+};
+const recordarPinLocal = async (pin) => {
+    try { const h = await hashPin(pin); if (h) localStorage.setItem(CLAVE_HASH_PIN, h); } catch (e) { /* ignorar */ }
+};
+const coincidePinLocal = async (pin) => {
+    try {
+        const guardado = localStorage.getItem(CLAVE_HASH_PIN);
+        return !!guardado && guardado === await hashPin(pin);
+    } catch (e) { return false; }
+};
+
 const actualizarDigitosPin = () => {
     pinDigitosEls.forEach((d, i) => d.classList.toggle('lleno', i < pinIngresado.length));
+};
+
+const mostrarErrorPin = (texto) => {
+    pinErrorEl.textContent = texto;
+    pinErrorEl.hidden = false;
 };
 
 const desbloquearPanel = () => {
@@ -526,12 +560,47 @@ const desbloquearPanel = () => {
     panelContenido.hidden = false;
 };
 
-const verificarPin = () => {
-    if (pinIngresado === panelPinActual) {
+// Vuelve a pedir el PIN (ej. la sesión venció o se cambió el PIN en otro
+// dispositivo). Lo que estaba en pantalla sin guardar no se pierde: el
+// panel solo se oculta.
+const bloquearPanel = (motivo) => {
+    cerrarModales();
+    pinIngresado = '';
+    actualizarDigitosPin();
+    pinOverlay.hidden = false;
+    pinOverlay.classList.remove('desbloqueado');
+    panelContenido.hidden = true;
+    if (motivo) mostrarErrorPin(motivo);
+};
+
+const verificarPin = async () => {
+    const pin = pinIngresado;
+    verificandoPin = true;
+    mostrarErrorPin('Verificando...');
+    const r = await CanalSorteo.login(pin);
+    let error = null;
+    if (r.ok) {
+        recordarPinLocal(pin);
+    } else if (r.error === 'sin-conexion' && await coincidePinLocal(pin)) {
+        // Sin servidor: se entra igual, pero los cambios solo llegan a la
+        // pantalla de sorteo abierta en este mismo navegador.
+    } else if (r.error === 'bloqueado') {
+        const hora = new Date(r.bloqueadoHasta).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+        error = `Demasiados intentos fallidos. Intenta de nuevo a las ${hora}.`;
+    } else if (r.error === 'sin-conexion') {
+        error = 'No hay conexión con el servidor. Revisa internet e intenta de nuevo.';
+    } else if (r.error === 'backend-antiguo') {
+        error = 'El servidor de sincronización necesita actualizarse (Codigo.gs).';
+    } else {
+        error = 'PIN incorrecto, intenta de nuevo.';
+    }
+    verificandoPin = false;
+    if (!error) {
+        pinErrorEl.hidden = true;
         desbloquearPanel();
         return;
     }
-    pinErrorEl.hidden = false;
+    mostrarErrorPin(error);
     pinDigitosEls.forEach((d) => d.classList.add('error'));
     setTimeout(() => {
         pinIngresado = '';
@@ -541,34 +610,72 @@ const verificarPin = () => {
 };
 
 const presionarTeclaPin = (numero) => {
-    if (pinIngresado.length >= 4) return;
+    if (verificandoPin || pinIngresado.length >= 4) return;
     pinIngresado += numero;
     pinErrorEl.hidden = true;
     actualizarDigitosPin();
     if (pinIngresado.length === 4) setTimeout(verificarPin, 150);
 };
+const borrarDigitoPin = () => {
+    if (verificandoPin) return;
+    pinIngresado = pinIngresado.slice(0, -1);
+    pinErrorEl.hidden = true;
+    actualizarDigitosPin();
+};
 
 document.querySelectorAll('#teclado-numerico .tecla[data-num]').forEach((boton) => {
     boton.addEventListener('click', () => presionarTeclaPin(boton.dataset.num));
 });
-document.getElementById('pin-borrar').addEventListener('click', () => {
-    pinIngresado = pinIngresado.slice(0, -1);
-    pinErrorEl.hidden = true;
-    actualizarDigitosPin();
-});
+document.getElementById('pin-borrar').addEventListener('click', borrarDigitoPin);
 document.addEventListener('keydown', (e) => {
     if (pinOverlay.hidden) return;
     if (/^[0-9]$/.test(e.key)) presionarTeclaPin(e.key);
-    else if (e.key === 'Backspace') { pinIngresado = pinIngresado.slice(0, -1); actualizarDigitosPin(); }
+    else if (e.key === 'Backspace') borrarDigitoPin();
 });
 
-document.getElementById('btn-cambiar-pin').addEventListener('click', () => {
-    const nuevo = document.getElementById('input-nuevo-pin').value.trim();
-    const confirmacion = document.getElementById('input-confirmar-pin').value.trim();
+// Ojo para ver/ocultar lo escrito en los campos de PIN nuevo.
+const ocultarPinesVisibles = () => {
+    document.querySelectorAll('.btn-ver-pin').forEach((boton) => {
+        document.getElementById(boton.dataset.para).type = 'password';
+        boton.classList.remove('activo');
+        boton.setAttribute('aria-label', 'Mostrar PIN');
+        boton.title = 'Mostrar PIN';
+    });
+};
+document.querySelectorAll('.btn-ver-pin').forEach((boton) => {
+    boton.addEventListener('click', () => {
+        const input = document.getElementById(boton.dataset.para);
+        const mostrar = input.type === 'password';
+        input.type = mostrar ? 'text' : 'password';
+        boton.classList.toggle('activo', mostrar);
+        boton.setAttribute('aria-label', mostrar ? 'Ocultar PIN' : 'Mostrar PIN');
+        boton.title = mostrar ? 'Ocultar PIN' : 'Mostrar PIN';
+    });
+});
+document.getElementById('btn-seguridad').addEventListener('click', ocultarPinesVisibles);
+
+const btnCambiarPin = document.getElementById('btn-cambiar-pin');
+btnCambiarPin.addEventListener('click', async () => {
+    const inputNuevo = document.getElementById('input-nuevo-pin');
+    const inputConfirmar = document.getElementById('input-confirmar-pin');
+    const nuevo = inputNuevo.value.trim();
+    const confirmacion = inputConfirmar.value.trim();
     if (!/^[0-9]{4}$/.test(nuevo)) { alert('El PIN debe tener exactamente 4 dígitos.'); return; }
     if (nuevo !== confirmacion) { alert('Los dos PIN no coinciden.'); return; }
-    panelPinActual = nuevo;
-    document.getElementById('input-nuevo-pin').value = '';
-    document.getElementById('input-confirmar-pin').value = '';
-    guardarDatos();
+    if (!CanalSorteo.tieneSesion()) { alert('Para cambiar el PIN hace falta conexión con el servidor. Vuelve a entrar al panel cuando haya internet.'); return; }
+    btnCambiarPin.disabled = true;
+    const r = await CanalSorteo.cambiarPin(nuevo);
+    btnCambiarPin.disabled = false;
+    if (r.ok) {
+        recordarPinLocal(nuevo);
+        inputNuevo.value = '';
+        inputConfirmar.value = '';
+        modalSeguridad.classList.remove('visible');
+        alert('¡PIN cambiado! Los demás dispositivos tendrán que ingresar el PIN nuevo.');
+    } else if (r.error === 'sesion-invalida') {
+        bloquearPanel('Tu sesión venció. Ingresa el PIN de nuevo.');
+    } else {
+        alert('No se pudo cambiar el PIN. Revisa la conexión e intenta de nuevo.');
+    }
 });
+

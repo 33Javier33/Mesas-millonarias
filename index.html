@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mesas Millonarias - Panel de Control</title>
-    <link rel="stylesheet" href="css/index.css?v=202609300512">
-    <script src="canal.js?v=20260930"></script>
+    <link rel="stylesheet" href="css/index.css?v=202609301930">
+    <script src="canal.js?v=202609301900"></script>
 </head>
 <body>
     <div class="pin-overlay" id="pin-overlay">
@@ -51,6 +51,7 @@
             <img src="img/logo-marca.png" alt="Carlos P. Nauto Interactive" class="logo-marca">
             <h3>Panel de Control</h3>
             <button type="button" class="btn-manual" id="btn-manual">📖 Manual de Uso</button>
+            <button type="button" class="btn-manual" id="btn-seguridad">🔒 Seguridad</button>
         </div>
 
         <div class="control-seccion">
@@ -203,22 +204,6 @@
                 </div>
             </details>
         </details>
-        <details class="config-seccion">
-            <summary class="resumen-seccion">🔒 Seguridad del Panel
-                <button type="button" class="btn-ayuda" data-ayuda="seguridad-pin" aria-label="Ayuda sobre el PIN de acceso">?</button>
-            </summary>
-            <div class="cambiar-pin-grupo">
-                <div class="input-group">
-                    <label for="input-nuevo-pin">Nuevo PIN (4 dígitos):</label>
-                    <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="input-nuevo-pin" placeholder="••••">
-                </div>
-                <div class="input-group">
-                    <label for="input-confirmar-pin">Confirmar PIN:</label>
-                    <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="input-confirmar-pin" placeholder="••••">
-                </div>
-                <button type="button" class="btn btn-agregar" id="btn-cambiar-pin">Cambiar PIN</button>
-            </div>
-        </details>
     </div>
     <div class="barra-guardar-flotante">
         <button id="btn-guardar" class="btn btn-guardar">Guardar y Sincronizar</button>
@@ -232,6 +217,31 @@
             <button type="button" class="modal-cerrar" id="modal-ayuda-cerrar" aria-label="Cerrar">✕</button>
             <h4 id="modal-ayuda-titulo"></h4>
             <div id="modal-ayuda-texto"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal-seguridad">
+        <div class="modal-caja">
+            <button type="button" class="modal-cerrar" id="modal-seguridad-cerrar" aria-label="Cerrar">✕</button>
+            <h4>🔒 Seguridad del Panel</h4>
+            <div id="modal-seguridad-texto" class="modal-seguridad-texto"></div>
+            <div class="cambiar-pin-grupo">
+                <div class="input-group">
+                    <label for="input-nuevo-pin">Nuevo PIN (4 dígitos):</label>
+                    <span class="campo-pin">
+                        <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="input-nuevo-pin" placeholder="••••">
+                        <button type="button" class="btn-ver-pin" data-para="input-nuevo-pin" aria-label="Mostrar PIN" title="Mostrar PIN">👁</button>
+                    </span>
+                </div>
+                <div class="input-group">
+                    <label for="input-confirmar-pin">Confirmar PIN:</label>
+                    <span class="campo-pin">
+                        <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="input-confirmar-pin" placeholder="••••">
+                        <button type="button" class="btn-ver-pin" data-para="input-confirmar-pin" aria-label="Mostrar PIN" title="Mostrar PIN">👁</button>
+                    </span>
+                </div>
+                <button type="button" class="btn btn-agregar" id="btn-cambiar-pin">Cambiar PIN</button>
+            </div>
         </div>
     </div>
 
@@ -273,12 +283,12 @@
                 <p><strong>Un color no se ve bien en la pantalla:</strong> revisa que el color tenga buen contraste; los colores muy oscuros como el negro ya se ajustan solos para verse bien en todos los temas.</p>
 
                 <h4>PIN de acceso al panel</h4>
-                <p>Este panel pide un PIN de 4 dígitos para abrirse (viene con <strong>2026</strong> por defecto). Puedes cambiarlo en <strong>"🔒 Seguridad del Panel"</strong>, al final. El PIN nuevo se sincroniza a los demás dispositivos igual que el resto de la configuración.</p>
+                <p>Este panel pide un PIN de 4 dígitos para abrirse (viene con <strong>2026</strong> por defecto). Puedes cambiarlo con el botón <strong>"🔒 Seguridad"</strong>, arriba junto al Manual. El PIN se guarda en el servidor: al cambiarlo, los demás dispositivos tendrán que ingresar el PIN nuevo. Si alguien se equivoca 10 veces seguidas, el ingreso queda bloqueado 15 minutos.</p>
             </div>
         </div>
     </div>
 
     </div>
-    <script src="js/index.js?v=202609301530"></script>
+    <script src="js/index.js?v=202609301930"></script>
 </body>
 </html>

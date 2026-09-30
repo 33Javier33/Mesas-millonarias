@@ -18,6 +18,8 @@
  *    dispositivo necesita apuntar a otro backend, se puede seguir
  *    sobrescribiendo con configurarUrlRemota() (guarda la excepción solo
  *    en ese navegador).
+ *    Leer es libre, pero para cambiar la configuración o enviar comandos
+ *    el backend exige una sesión, que se obtiene con el PIN (login()).
  */
 (function (global) {
     const NOMBRE_CANAL = 'mesas-millonarias-canal';
@@ -127,13 +129,56 @@
         }
     }
 
-    function enviarRemoto(campo, valor) {
+    // --- Sesión del panel ---
+    // El backend solo acepta cambios de config y comandos si van con una
+    // sesión, que se obtiene con el PIN correcto (ver login()). Se guarda
+    // solo en memoria: al recargar la página hay que volver a ingresar el PIN.
+    let sesion = null;
+
+    // Sin cabecera Content-Type explícita a propósito: así el navegador la
+    // envía como "text/plain" y evita el preflight CORS que Apps Script
+    // no puede responder. doPost igual lo parsea como JSON.
+    async function postRemoto(body) {
         const url = obtenerUrlRemota();
-        if (!url) return;
-        // Sin cabecera Content-Type explícita a propósito: así el navegador la
-        // envía como "text/plain" y evita el preflight CORS que Apps Script
-        // no puede responder. doPost igual lo parsea como JSON.
-        fetch(url, { method: 'POST', body: JSON.stringify({ campo, valor }) }).catch(() => { /* ignorar */ });
+        if (!url) throw new Error('sin-url');
+        const resp = await fetch(url, { method: 'POST', body: JSON.stringify(body) });
+        return resp.json();
+    }
+
+    function enviarRemoto(campo, valor) {
+        if (!obtenerUrlRemota()) return;
+        postRemoto({ campo, valor, sesion }).then((r) => {
+            // La sesión venció o el PIN se cambió desde otro dispositivo:
+            // se avisa solo a esta página (no se transmite a otras).
+            if (r && r.error === 'sesion-invalida') {
+                sesion = null;
+                notificar({ tipo: 'sesion-rechazada', campo });
+            }
+        }).catch(() => { /* ignorar */ });
+    }
+
+    // Devuelve { ok, error?, bloqueadoHasta? }. error puede ser
+    // 'pin-incorrecto', 'bloqueado', 'sin-conexion' o 'backend-antiguo'.
+    async function login(pin) {
+        let r;
+        try { r = await postRemoto({ accion: 'login', pin }); } catch (e) { return { ok: false, error: 'sin-conexion' }; }
+        if (r && r.ok && r.sesion) { sesion = r.sesion; return { ok: true }; }
+        if (r && r.error === 'campo inválido') return { ok: false, error: 'backend-antiguo' };
+        return r || { ok: false, error: 'sin-conexion' };
+    }
+
+    async function cambiarPin(nuevoPin) {
+        try {
+            const r = await postRemoto({ accion: 'cambiar-pin', sesion, nuevoPin });
+            if (r && r.error === 'sesion-invalida') sesion = null;
+            return r || { ok: false, error: 'sin-conexion' };
+        } catch (e) {
+            return { ok: false, error: 'sin-conexion' };
+        }
+    }
+
+    function tieneSesion() {
+        return !!sesion;
     }
 
     function enviar(mensaje) {
@@ -169,5 +214,5 @@
 
     reiniciarPolling();
 
-    global.CanalSorteo = { enviar, escuchar, configurarUrlRemota, obtenerUrlRemota };
+    global.CanalSorteo = { enviar, escuchar, configurarUrlRemota, obtenerUrlRemota, login, cambiarPin, tieneSesion };
 })(window);
