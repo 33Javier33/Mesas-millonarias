@@ -41,8 +41,10 @@ const defaultData = {
     mensajeEstadoActivado: true,
     fuegosArtificialesActivado: true,
     confetiExplosivoActivado: true,
-    temaSorteo: 'original'
+    temaSorteo: 'original',
+    panelPin: '2026'
 };
+let panelPinActual = defaultData.panelPin;
 
 let todasLasMesas, coloresRuleta21, coloresRuleta22, coloresRuleta23, colorMap, montoPremio;
 const inputMontoPremio = document.getElementById('input-monto-premio');
@@ -160,6 +162,7 @@ const guardarDatos = () => {
         checkedColores21: Array.from(document.querySelectorAll('input[name="colores-ruleta-21"]:checked')).map(cb => cb.value),
         checkedColores22: Array.from(document.querySelectorAll('input[name="colores-ruleta-22"]:checked')).map(cb => cb.value),
         checkedColores23: Array.from(document.querySelectorAll('input[name="colores-ruleta-23"]:checked')).map(cb => cb.value),
+        panelPin: panelPinActual,
     };
     localStorage.setItem('mesasMillonariasData', JSON.stringify(data));
     CanalSorteo.enviar({ tipo: 'config-actualizada', datos: data });
@@ -210,6 +213,7 @@ const cargarDatos = () => {
     const temaGuardado = data.temaSorteo || defaultData.temaSorteo;
     inputsTemaSorteo.forEach((input) => { input.checked = (input.value === temaGuardado); });
     actualizarPreviewMonto();
+    panelPinActual = (data.panelPin !== undefined && data.panelPin !== null && String(data.panelPin).trim() !== '') ? String(data.panelPin) : defaultData.panelPin;
 };
 
 // Ojo: solo se resetean los checkboxes de las listas dinámicas (mesas y
@@ -420,6 +424,11 @@ const TEXTOS_AYUDA = {
         titulo: 'Guardar y Sincronizar',
         texto: '<p><strong>Ningún cambio que hagas en este panel se aplica hasta que aprietes este botón.</strong> Úsalo siempre después de modificar mesas, colores, premio, tiempos, efectos o el tema.</p>',
     },
+    'seguridad-pin': {
+        titulo: '🔒 Seguridad del Panel',
+        texto: '<p>Aquí puedes cambiar el PIN de 4 dígitos que pide este panel al abrirse (viene en <strong>2026</strong> por defecto). Escribe el nuevo PIN dos veces y aprieta "Cambiar PIN".</p>' +
+            '<p>El cambio se guarda y sincroniza al instante, así que el nuevo PIN va a pedirse en todos los dispositivos que usen este panel.</p>',
+    },
 };
 
 const modalAyuda = document.getElementById('modal-ayuda');
@@ -455,3 +464,73 @@ document.getElementById('modal-manual-cerrar').addEventListener('click', () => m
     overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('visible'); });
 });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') cerrarModales(); });
+
+// --- Login por PIN de 4 dígitos ---
+// Es una protección simple: evita que cualquiera que abra esta página toque
+// la configuración sin el PIN. No es seguridad "real" (todo corre en el
+// navegador, como el resto de este panel), pero alcanza para que un
+// cliente o alguien sin autorización no pueda entrar por error o curiosidad.
+// El PIN viaja junto con el resto de la configuración (guardarDatos/
+// cargarDatos), así que cambiarlo lo sincroniza a todos los dispositivos.
+let pinIngresado = '';
+const pinOverlay = document.getElementById('pin-overlay');
+const panelContenido = document.getElementById('panel-contenido');
+const pinDigitosEls = document.querySelectorAll('.pin-digito');
+const pinErrorEl = document.getElementById('pin-error');
+
+const actualizarDigitosPin = () => {
+    pinDigitosEls.forEach((d, i) => d.classList.toggle('lleno', i < pinIngresado.length));
+};
+
+const desbloquearPanel = () => {
+    pinOverlay.classList.add('desbloqueado');
+    setTimeout(() => { pinOverlay.hidden = true; }, 200);
+    panelContenido.hidden = false;
+};
+
+const verificarPin = () => {
+    if (pinIngresado === panelPinActual) {
+        desbloquearPanel();
+        return;
+    }
+    pinErrorEl.hidden = false;
+    pinDigitosEls.forEach((d) => d.classList.add('error'));
+    setTimeout(() => {
+        pinIngresado = '';
+        actualizarDigitosPin();
+        pinDigitosEls.forEach((d) => d.classList.remove('error'));
+    }, 500);
+};
+
+const presionarTeclaPin = (numero) => {
+    if (pinIngresado.length >= 4) return;
+    pinIngresado += numero;
+    pinErrorEl.hidden = true;
+    actualizarDigitosPin();
+    if (pinIngresado.length === 4) setTimeout(verificarPin, 150);
+};
+
+document.querySelectorAll('#teclado-numerico .tecla[data-num]').forEach((boton) => {
+    boton.addEventListener('click', () => presionarTeclaPin(boton.dataset.num));
+});
+document.getElementById('pin-borrar').addEventListener('click', () => {
+    pinIngresado = pinIngresado.slice(0, -1);
+    pinErrorEl.hidden = true;
+    actualizarDigitosPin();
+});
+document.addEventListener('keydown', (e) => {
+    if (pinOverlay.hidden) return;
+    if (/^[0-9]$/.test(e.key)) presionarTeclaPin(e.key);
+    else if (e.key === 'Backspace') { pinIngresado = pinIngresado.slice(0, -1); actualizarDigitosPin(); }
+});
+
+document.getElementById('btn-cambiar-pin').addEventListener('click', () => {
+    const nuevo = document.getElementById('input-nuevo-pin').value.trim();
+    const confirmacion = document.getElementById('input-confirmar-pin').value.trim();
+    if (!/^[0-9]{4}$/.test(nuevo)) { alert('El PIN debe tener exactamente 4 dígitos.'); return; }
+    if (nuevo !== confirmacion) { alert('Los dos PIN no coinciden.'); return; }
+    panelPinActual = nuevo;
+    document.getElementById('input-nuevo-pin').value = '';
+    document.getElementById('input-confirmar-pin').value = '';
+    guardarDatos();
+});

@@ -4,10 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mesas Millonarias - Panel de Control</title>
-    <link rel="stylesheet" href="css/index.css?v=202609300137">
+    <link rel="stylesheet" href="css/index.css?v=202609300353">
     <script src="canal.js?v=20260930"></script>
 </head>
 <body>
+    <div class="pin-overlay" id="pin-overlay">
+        <div class="pin-caja">
+            <img src="img/logo-marca.png" alt="Carlos P. Nauto Interactive" class="pin-logo">
+            <h3>Panel de Control</h3>
+            <p>Ingresa el PIN para continuar</p>
+            <div class="pin-digitos" id="pin-digitos">
+                <span class="pin-digito"></span>
+                <span class="pin-digito"></span>
+                <span class="pin-digito"></span>
+                <span class="pin-digito"></span>
+            </div>
+            <p class="pin-error" id="pin-error" hidden>PIN incorrecto, intenta de nuevo.</p>
+            <div class="teclado-numerico" id="teclado-numerico">
+                <button type="button" class="tecla" data-num="1">1</button>
+                <button type="button" class="tecla" data-num="2">2</button>
+                <button type="button" class="tecla" data-num="3">3</button>
+                <button type="button" class="tecla" data-num="4">4</button>
+                <button type="button" class="tecla" data-num="5">5</button>
+                <button type="button" class="tecla" data-num="6">6</button>
+                <button type="button" class="tecla" data-num="7">7</button>
+                <button type="button" class="tecla" data-num="8">8</button>
+                <button type="button" class="tecla" data-num="9">9</button>
+                <span class="tecla tecla-vacia"></span>
+                <button type="button" class="tecla" data-num="0">0</button>
+                <button type="button" class="tecla tecla-borrar" id="pin-borrar" aria-label="Borrar">⌫</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="panel-contenido" hidden>
     <div class="contenedor-configuracion">
         <div class="encabezado-panel">
             <img src="img/logo-marca.png" alt="Carlos P. Nauto Interactive" class="logo-marca">
@@ -165,6 +195,22 @@
                 </div>
             </details>
         </details>
+        <details class="config-seccion">
+            <summary class="resumen-seccion">🔒 Seguridad del Panel
+                <button type="button" class="btn-ayuda" data-ayuda="seguridad-pin" aria-label="Ayuda sobre el PIN de acceso">?</button>
+            </summary>
+            <div class="cambiar-pin-grupo">
+                <div class="input-group">
+                    <label for="input-nuevo-pin">Nuevo PIN (4 dígitos):</label>
+                    <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="input-nuevo-pin" placeholder="••••">
+                </div>
+                <div class="input-group">
+                    <label for="input-confirmar-pin">Confirmar PIN:</label>
+                    <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="input-confirmar-pin" placeholder="••••">
+                </div>
+                <button type="button" class="btn btn-agregar" id="btn-cambiar-pin">Cambiar PIN</button>
+            </div>
+        </details>
     </div>
     <div class="barra-guardar-flotante">
         <button id="btn-guardar" class="btn btn-guardar">Guardar y Sincronizar</button>
@@ -217,10 +263,14 @@
                 <p><strong>El indicador dice "Desconectado":</strong> la Pantalla de Sorteo no está abierta, se cerró, o se cortó la conexión a internet en ese dispositivo. Vuelve a abrirla con "Lanzar Pantalla" y espera unos segundos.</p>
                 <p><strong>Guardé cambios pero no se ven en la pantalla grande:</strong> revisa que diga "Conectado" antes de guardar. Si estaba desconectada, vuelve a apretar "Guardar y Sincronizar" una vez que se reconecte.</p>
                 <p><strong>Un color no se ve bien en la pantalla:</strong> revisa que el color tenga buen contraste; los colores muy oscuros como el negro ya se ajustan solos para verse bien en todos los temas.</p>
+
+                <h4>PIN de acceso al panel</h4>
+                <p>Este panel pide un PIN de 4 dígitos para abrirse (viene con <strong>2026</strong> por defecto). Puedes cambiarlo en <strong>"🔒 Seguridad del Panel"</strong>, al final. El PIN nuevo se sincroniza a los demás dispositivos igual que el resto de la configuración.</p>
             </div>
         </div>
     </div>
 
-    <script src="js/index.js?v=202609300137"></script>
+    </div>
+    <script src="js/index.js?v=202609300353"></script>
 </body>
 </html>
