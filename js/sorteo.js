@@ -131,7 +131,15 @@ const cargarDatosLocalStorage = () => {
 };
 
 const crearConfettiParticula = () => { const confetti = document.createElement('div'); confetti.classList.add('confetti'); const colors = ['#f39c12', '#e74c3c', '#3498db', '#2ecc71', '#9b59b6']; confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)]; confetti.style.setProperty('--x', `${(Math.random() - 0.5) * 150}vw`); confetti.style.setProperty('--x-end', `${(Math.random() - 0.5) * 200}vw`); confetti.style.setProperty('--deg', `${Math.random() * 360}deg`); confetti.style.setProperty('--deg-end', `${Math.random() * 360 * 2 + 360}deg`); const duration = Math.random() * 3 + 4; confetti.style.animationDuration = `${duration}s`; confetti.style.animationDelay = `-${Math.random() * duration}s`; confettiContainer.appendChild(confetti); confetti.addEventListener('animationend', () => confetti.remove()); };
-const iniciarConfetiContinuo = () => { for (let i = 0; i < 50; i++) crearConfettiParticula(); confettiInterval = setInterval(crearConfettiParticula, 100); };
+const iniciarConfetiContinuo = () => {
+    const MAX_CONFETI = 80; // Límite máximo de partículas para no inundar la pantalla
+    for (let i = 0; i < 30; i++) crearConfettiParticula();
+    confettiInterval = setInterval(() => {
+        if (confettiContainer.children.length < MAX_CONFETI) {
+            crearConfettiParticula();
+        }
+    }, 150);
+};
 const detenerConfetiContinuo = () => { clearInterval(confettiInterval); confettiContainer.innerHTML = ''; };
 
 // --- Efectos ambientales de fondo para Tema 2 y Tema 3: fuegos artificiales
@@ -195,9 +203,8 @@ const detenerConfetiExplosivoAmbiente = () => { if (confetiExplosivoTimeoutId) {
 const iniciarConfetiExplosivoAmbiente = () => { crearEstallidoConfeti(); programarSiguienteConfetiExplosivo(); };
 
 const actualizarEfectosAmbiente = () => {
-    const enTema23 = (temaActual === 'tema2' || temaActual === 'tema3');
-    const fuegosOn = enTema23 && datosSorteo.fuegosArtificialesActivado !== false;
-    const confetiExplOn = enTema23 && datosSorteo.confetiExplosivoActivado !== false;
+    const fuegosOn = datosSorteo.fuegosArtificialesActivado !== false;
+    const confetiExplOn = datosSorteo.confetiExplosivoActivado !== false;
     if (fuegosOn && !fuegosTimeoutId) { iniciarFuegosAmbiente(); }
     else if (!fuegosOn && fuegosTimeoutId) { detenerFuegosAmbiente(); }
     if (confetiExplOn && !confetiExplosivoTimeoutId) { iniciarConfetiExplosivoAmbiente(); }

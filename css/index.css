@@ -16,10 +16,47 @@ body {
     padding: 20px 30px;
     border-radius: 15px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-    max-width: 700px;
+    max-width: 1400px;
     width: 100%;
     border: 2px solid #34495e;
     margin-bottom: 20px;
+}
+
+/* ==== Diseño del panel en 3 columnas ==== */
+.panel-columnas {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    align-items: start;
+}
+
+.panel-columna {
+    min-width: 0;
+    position: relative;
+}
+
+/* En pantallas medianas (laptops chicas, tablets horizontales): 2 columnas */
+@media (max-width: 1200px) {
+    .panel-columnas {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* En pantallas chicas (tablets verticales, celulares grandes): 1 columna */
+@media (max-width: 800px) {
+    .panel-columnas {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* En pantallas muy chicas (celulares): ajustar padding */
+@media (max-width: 500px) {
+    .contenedor-configuracion {
+        padding: 15px 15px;
+    }
+    .panel-columnas {
+        gap: 15px;
+    }
 }
 /* Barra de guardado flotante: siempre visible, sin importar el scroll */
 .barra-guardar-flotante {
@@ -335,11 +372,11 @@ h4 .btn-ayuda, .resumen-seccion .btn-ayuda { margin-left: 6px; vertical-align: m
 .pin-overlay.desbloqueado { opacity: 0; }
 .pin-overlay[hidden] { display: none; }
 
-/* ==== Aviso de "sorteo en curso": bloquea el panel completo mientras la
-   tómbola está girando, para que nadie pueda tocar nada (ni volver a
-   apretar "Iniciar Sorteo") hasta que la pantalla confirme que terminó ==== */
+/* ==== Aviso de "sorteo en curso": bloquea solo la sección de Control de
+   Pantalla de Sorteo mientras la tómbola está girando. Las otras columnas
+   (Mesas, Colores) siguen editables; los cambios se aplican al terminar. ==== */
 .sorteo-en-curso-overlay {
-    position: fixed;
+    position: absolute;
     inset: 0;
     background: rgba(5, 10, 16, 0.82);
     z-index: 600;
@@ -348,6 +385,7 @@ h4 .btn-ayuda, .resumen-seccion .btn-ayuda { margin-left: 6px; vertical-align: m
     justify-content: center;
     padding: 20px;
     box-sizing: border-box;
+    border-radius: 8px;
 }
 .sorteo-en-curso-overlay[hidden] { display: none; }
 .sorteo-en-curso-caja {

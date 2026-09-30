@@ -37,14 +37,6 @@
         </div>
     </div>
 
-    <div class="sorteo-en-curso-overlay" id="sorteo-en-curso-overlay" hidden>
-        <div class="sorteo-en-curso-caja">
-            <div class="spinner-sorteo"></div>
-            <h3>🎰 Sorteo en curso...</h3>
-            <p>Espera a que termine antes de continuar.</p>
-        </div>
-    </div>
-
     <div id="panel-contenido" hidden>
     <div class="contenedor-configuracion">
         <div class="encabezado-panel">
@@ -54,6 +46,8 @@
             <button type="button" class="btn-manual" id="btn-seguridad">🔒 Seguridad</button>
         </div>
 
+        <div class="panel-columnas">
+        <div class="panel-columna">
         <div class="control-seccion">
             <h4>Control de Pantalla de Sorteo
                 <button type="button" class="btn-ayuda" data-ayuda="control-pantalla" aria-label="Ayuda sobre esta sección">?</button>
@@ -112,6 +106,14 @@
             </div>
         </div>
 
+        <div class="sorteo-en-curso-overlay" id="sorteo-en-curso-overlay" hidden>
+            <div class="sorteo-en-curso-caja">
+                <div class="spinner-sorteo"></div>
+                <h3>🎰 Sorteo en curso...</h3>
+                <p>Espera a que termine antes de continuar.</p>
+            </div>
+        </div>
+
         <details class="config-seccion">
             <summary class="resumen-seccion">Tema de la Pantalla de Sorteo
                 <button type="button" class="btn-ayuda" data-ayuda="temas" aria-label="Ayuda sobre los temas">?</button>
@@ -134,6 +136,8 @@
                 </label>
             </div>
         </details>
+        </div><!-- fin columna 1 -->
+        <div class="panel-columna">
         <details class="config-seccion" open>
             <summary class="resumen-seccion">Mesas en juego
                 <button type="button" class="btn-ayuda" data-ayuda="mesas-en-juego" aria-label="Ayuda sobre las mesas en juego">?</button>
@@ -148,6 +152,8 @@
                 <button class="btn btn-agregar" id="btn-agregar-mesa">Agregar</button>
             </div>
         </details>
+        </div><!-- fin columna 2 -->
+        <div class="panel-columna">
         <details class="config-seccion" open>
             <summary class="resumen-seccion">Colores de Ruletas
                 <button type="button" class="btn-ayuda" data-ayuda="colores-ruletas" aria-label="Ayuda sobre los colores de ruleta">?</button>
@@ -204,6 +210,8 @@
                 </div>
             </details>
         </details>
+        </div><!-- fin columna 3 -->
+        </div><!-- fin panel-columnas -->
     </div>
     <div class="barra-guardar-flotante">
         <button id="btn-guardar" class="btn btn-guardar">Guardar y Sincronizar</button>
