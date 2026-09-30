@@ -29,6 +29,23 @@ const limpiarComandoIniciarPendiente = () => {
     if (comandoIniciarTimeoutId) { clearTimeout(comandoIniciarTimeoutId); comandoIniciarTimeoutId = null; }
 };
 
+// Una vez que la pantalla confirma "sorteo-iniciado", NO debemos volver a
+// habilitar el botón solo porque llegue un latido con estado "listo": en la
+// práctica eso puede pasar por un corte de red momentáneo con el backend
+// remoto, o si queda abierta una segunda pestaña/ventana de sorteo.html
+// enviando su propio latido "listo" de fondo. Antes, un solo latido así
+// bastaba para des-deshabilitar el botón un instante (el modal "aparece y
+// desaparece"), y un clic real en esa ventana disparaba un segundo sorteo
+// de verdad. Con esta bandera, mientras haya un sorteo confirmado en curso,
+// se ignora el estado de los latidos y solo "sorteo-terminado" (o perder la
+// conexión por completo) puede volver a habilitar el botón.
+let sorteoEnCursoConfirmado = false;
+let sorteoEnCursoConfirmadoTimeoutId = null;
+const limpiarSorteoEnCursoConfirmado = () => {
+    sorteoEnCursoConfirmado = false;
+    if (sorteoEnCursoConfirmadoTimeoutId) { clearTimeout(sorteoEnCursoConfirmadoTimeoutId); sorteoEnCursoConfirmadoTimeoutId = null; }
+};
+
 const defaultData = {
     mesas: [ 'Blackjack 17', 'Blackjack 15', 'Blackjack 34', 'Draw-Poker 7', 'Draw-Poker 12', 'Hold\'em-Poker 8', 'Caribbean-Poker 13', 'Ruleta 21', 'Ruleta 22', 'Ruleta 23', 'Ruleta 24', 'Ruleta 25' ],
     colores21: ['Lila', 'Amarilla', 'Roja', 'Verde', 'Azul', 'Damasco', 'Plomo', 'Burdeo'],
@@ -81,7 +98,7 @@ function actualizarStatusPantalla() {
     btnLanzar.textContent = (sorteoWindow && !sorteoWindow.closed) ? 'Enfocar Pantalla' : 'Lanzar Pantalla';
 
     if (conectado) {
-        const girando = estadoSorteoRemoto === 'girando' || comandoIniciarPendiente;
+        const girando = estadoSorteoRemoto === 'girando' || comandoIniciarPendiente || sorteoEnCursoConfirmado;
         statusPantalla.textContent = girando ? 'Sorteando...' : 'Conectado';
         statusPantalla.className = girando ? 'girando' : 'conectado';
         btnIniciarSorteo.disabled = girando;
@@ -92,6 +109,7 @@ function actualizarStatusPantalla() {
         btnIniciarSorteo.disabled = true;
         btnPremio.disabled = true;
         limpiarComandoIniciarPendiente();
+        limpiarSorteoEnCursoConfirmado();
         sorteoEnCursoOverlay.hidden = true;
     }
 }
@@ -129,14 +147,27 @@ CanalSorteo.escuchar((mensaje) => {
             ultimoLatido = Date.now();
             estadoSorteoRemoto = mensaje.estado || 'listo';
             break;
-        case 'sorteo-iniciado':
+        case 'sorteo-iniciado': {
             limpiarComandoIniciarPendiente();
             estadoSorteoRemoto = 'girando';
+            sorteoEnCursoConfirmado = true;
+            if (sorteoEnCursoConfirmadoTimeoutId) clearTimeout(sorteoEnCursoConfirmadoTimeoutId);
+            // Respaldo de seguridad por si "sorteo-terminado" nunca llega
+            // (se perdió el mensaje, se cerró la pantalla, etc.): se calcula
+            // según la duración real configurada, más un margen amplio para
+            // el mensaje de ganador, el confeti y la latencia de red, para
+            // no volver a habilitar el botón mientras el sorteo real sigue
+            // corriendo.
+            const margenSeguridadMs = 20000;
+            const duracionTotalMs = ((Number(inputDuracionMesa.value) || 3) + (Number(inputDuracionGanador.value) || 3)) * 1000;
+            sorteoEnCursoConfirmadoTimeoutId = setTimeout(() => { sorteoEnCursoConfirmado = false; actualizarStatusPantalla(); }, duracionTotalMs + margenSeguridadMs);
             btnIniciarSorteo.disabled = true;
             btnPremio.disabled = true;
             break;
+        }
         case 'sorteo-terminado':
             limpiarComandoIniciarPendiente();
+            limpiarSorteoEnCursoConfirmado();
             estadoSorteoRemoto = 'listo';
             btnPremio.disabled = false;
             btnIniciarSorteo.disabled = false;
