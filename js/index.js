@@ -523,6 +523,7 @@ document.getElementById('modal-seguridad-texto').innerHTML = TEXTOS_AYUDA['segur
 // en este dispositivo (guardado como hash), para poder seguir usando el
 // panel con la pantalla de sorteo en el mismo navegador.
 const CLAVE_HASH_PIN = 'mesasMillonariasPinHash';
+const CLAVE_SESION_ACTIVA = 'mesasMillonariasSesionActiva';
 let pinIngresado = '';
 let verificandoPin = false;
 const pinOverlay = document.getElementById('pin-overlay');
@@ -545,6 +546,21 @@ const coincidePinLocal = async (pin) => {
     } catch (e) { return false; }
 };
 
+// Guarda que hay una sesión activa (sobrevive a recargas de la página)
+const guardarSesionActiva = () => {
+    try { sessionStorage.setItem(CLAVE_SESION_ACTIVA, 'true'); } catch (e) { /* ignorar */ }
+};
+
+// Verifica si hay una sesión activa guardada
+const haySesionActiva = () => {
+    try { return sessionStorage.getItem(CLAVE_SESION_ACTIVA) === 'true'; } catch (e) { return false; }
+};
+
+// Limpia la sesión activa (cuando se bloquea el panel)
+const limpiarSesionActiva = () => {
+    try { sessionStorage.removeItem(CLAVE_SESION_ACTIVA); } catch (e) { /* ignorar */ }
+};
+
 const actualizarDigitosPin = () => {
     pinDigitosEls.forEach((d, i) => d.classList.toggle('lleno', i < pinIngresado.length));
 };
@@ -558,6 +574,7 @@ const desbloquearPanel = () => {
     pinOverlay.classList.add('desbloqueado');
     setTimeout(() => { pinOverlay.hidden = true; }, 200);
     panelContenido.hidden = false;
+    guardarSesionActiva();
 };
 
 // Vuelve a pedir el PIN (ej. la sesión venció o se cambió el PIN en otro
@@ -570,6 +587,7 @@ const bloquearPanel = (motivo) => {
     pinOverlay.hidden = false;
     pinOverlay.classList.remove('desbloqueado');
     panelContenido.hidden = true;
+    limpiarSesionActiva();
     if (motivo) mostrarErrorPin(motivo);
 };
 
@@ -678,4 +696,10 @@ btnCambiarPin.addEventListener('click', async () => {
         alert('No se pudo cambiar el PIN. Revisa la conexión e intenta de nuevo.');
     }
 });
+
+// Al cargar la página: si hay una sesión activa, entrar directamente al panel
+// sin pedir el PIN otra vez (ej. si se actualizó la página).
+if (haySesionActiva()) {
+    desbloquearPanel();
+}
 
