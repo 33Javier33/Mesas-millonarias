@@ -334,6 +334,43 @@ h4 .btn-ayuda, .resumen-seccion .btn-ayuda { margin-left: 6px; vertical-align: m
 }
 .pin-overlay.desbloqueado { opacity: 0; }
 .pin-overlay[hidden] { display: none; }
+
+/* ==== Aviso de "sorteo en curso": bloquea el panel completo mientras la
+   tómbola está girando, para que nadie pueda tocar nada (ni volver a
+   apretar "Iniciar Sorteo") hasta que la pantalla confirme que terminó ==== */
+.sorteo-en-curso-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 10, 16, 0.82);
+    z-index: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+.sorteo-en-curso-overlay[hidden] { display: none; }
+.sorteo-en-curso-caja {
+    background-color: rgba(31, 50, 70, 0.95);
+    border: 2px solid #f39c12;
+    border-radius: 15px;
+    padding: 32px 28px;
+    max-width: 320px;
+    text-align: center;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+.sorteo-en-curso-caja h3 { margin: 14px 0 6px; color: #f39c12; }
+.sorteo-en-curso-caja p { margin: 0; opacity: 0.85; }
+.spinner-sorteo {
+    width: 48px;
+    height: 48px;
+    border: 5px solid rgba(243, 156, 18, 0.25);
+    border-top-color: #f39c12;
+    border-radius: 50%;
+    margin: 0 auto;
+    animation: girar-spinner-sorteo 0.8s linear infinite;
+}
+@keyframes girar-spinner-sorteo { to { transform: rotate(360deg); } }
 .pin-caja {
     background-color: rgba(31, 50, 70, 0.9);
     border: 2px solid #34495e;

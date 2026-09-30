@@ -3,6 +3,7 @@ const btnLanzar = document.getElementById('btn-lanzar-pantalla');
 const btnPremio = document.getElementById('btn-premio');
 const statusPantalla = document.getElementById('status-pantalla');
 const btnIniciarSorteo = document.getElementById('btn-iniciar-sorteo');
+const sorteoEnCursoOverlay = document.getElementById('sorteo-en-curso-overlay');
 
 // --- Conexión estable con la pantalla de sorteo vía CanalSorteo ---
 // En vez de depender de la referencia de la ventana (que se pierde
@@ -84,12 +85,14 @@ function actualizarStatusPantalla() {
         statusPantalla.textContent = girando ? 'Sorteando...' : 'Conectado';
         statusPantalla.className = girando ? 'girando' : 'conectado';
         btnIniciarSorteo.disabled = girando;
+        sorteoEnCursoOverlay.hidden = !girando;
     } else {
         statusPantalla.textContent = 'Desconectado';
         statusPantalla.className = 'desconectado';
         btnIniciarSorteo.disabled = true;
         btnPremio.disabled = true;
         limpiarComandoIniciarPendiente();
+        sorteoEnCursoOverlay.hidden = true;
     }
 }
 
@@ -107,6 +110,10 @@ function iniciarSorteoRemoto() {
     CanalSorteo.enviar({ tipo: 'iniciar-sorteo' });
     btnPremio.disabled = true;
     btnIniciarSorteo.disabled = true;
+    // Sin esto, el mensaje "Sorteando..." y el modal que bloquea el panel
+    // tardaban hasta 1 segundo en aparecer (recién con el siguiente tick del
+    // setInterval de actualizarStatusPantalla), en vez de salir al instante.
+    actualizarStatusPantalla();
     // Respaldo: si por algún motivo nunca llega "sorteo-iniciado" (ej. se
     // perdió el mensaje), no dejamos el botón deshabilitado para siempre.
     comandoIniciarTimeoutId = setTimeout(() => { comandoIniciarPendiente = false; actualizarStatusPantalla(); }, 8000);
