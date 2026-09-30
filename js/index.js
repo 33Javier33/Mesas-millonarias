@@ -30,10 +30,10 @@ const limpiarComandoIniciarPendiente = () => {
 
 const defaultData = {
     mesas: [ 'Blackjack 17', 'Blackjack 15', 'Blackjack 34', 'Draw-Poker 7', 'Draw-Poker 12', 'Hold\'em-Poker 8', 'Caribbean-Poker 13', 'Ruleta 21', 'Ruleta 22', 'Ruleta 23', 'Ruleta 24', 'Ruleta 25' ],
-    colores21: ['Lila', 'Amarillo', 'Rojo', 'Verde', 'Azul', 'Plomo', 'Naranjo', 'Burdeo'],
+    colores21: ['Lila', 'Amarilla', 'Roja', 'Verde', 'Azul', 'Damasco', 'Plomo', 'Burdeo'],
     colores22: ['Amarillo', 'Verde', 'Azul', 'Celeste', 'Café', 'Negro', 'Burdeo', 'Rojo', 'Naranjo', 'Calipso', 'Gris'],
     colores23: ['Amarillo', 'Verde', 'Azul', 'Celeste', 'Café', 'Negro', 'Burdeo', 'Rojo', 'Naranjo', 'Calipso', 'Gris'],
-    colorMap: { 'lila': '#9B59B6', 'amarillo': '#F1C40F', 'rojo': '#E74C3C', 'verde': '#2ECC71', 'azul': '#3498DB', 'plomo': '#95A5A6', 'naranjo': '#E67E22', 'burdeo': '#C0392B', 'celeste': '#5DADE2', 'cafe': '#A0522D', 'negro': '#000000', 'calipso': '#00A896', 'gris': '#7f8c8d' },
+    colorMap: { 'lila': '#9B59B6', 'amarillo': '#F1C40F', 'amarilla': '#F1C40F', 'rojo': '#E74C3C', 'roja': '#E74C3C', 'verde': '#2ECC71', 'azul': '#3498DB', 'plomo': '#95A5A6', 'naranjo': '#E67E22', 'damasco': '#D5904A', 'burdeo': '#C0392B', 'celeste': '#5DADE2', 'cafe': '#A0522D', 'negro': '#000000', 'calipso': '#00A896', 'gris': '#7f8c8d' },
     montoPremio: 100000,
     duracionMesa: 3,
     duracionGanador: 3,
@@ -166,6 +166,31 @@ const guardarDatos = () => {
     alert('¡Configuración guardada y sincronizada!');
 };
 
+// --- Migración: los colores de Ruleta 21/24/25 pasan a llamarse igual que
+// las fichas reales del casino ("Amarillo"->"Amarilla", "Rojo"->"Roja",
+// "Naranjo"->"Damasco"). Como ya había configuraciones guardadas con los
+// nombres viejos, esto corre una sola vez al cargar el panel y corrige lo
+// que haya en localStorage; el próximo "Guardar y Sincronizar" sube los
+// nombres correctos a la pantalla de sorteo y a los demás dispositivos.
+const RENOMBRES_COLORES_21 = { 'Amarillo': 'Amarilla', 'Rojo': 'Roja', 'Naranjo': 'Damasco' };
+const migrarNombresColores21 = () => {
+    const storedData = localStorage.getItem('mesasMillonariasData');
+    if (!storedData) return;
+    let data;
+    try { data = JSON.parse(storedData); } catch (e) { return; }
+    let cambio = false;
+    ['colores21', 'checkedColores21'].forEach((campo) => {
+        if (Array.isArray(data[campo])) {
+            const renombrado = data[campo].map((v) => RENOMBRES_COLORES_21[v] || v);
+            if (JSON.stringify(renombrado) !== JSON.stringify(data[campo])) { data[campo] = renombrado; cambio = true; }
+        }
+    });
+    // Agrega los hex de los nombres nuevos sin pisar ninguna personalización propia.
+    const colorMapCompleto = Object.assign({}, defaultData.colorMap, data.colorMap || {});
+    if (JSON.stringify(colorMapCompleto) !== JSON.stringify(data.colorMap || {})) { data.colorMap = colorMapCompleto; cambio = true; }
+    if (cambio) localStorage.setItem('mesasMillonariasData', JSON.stringify(data));
+};
+
 const cargarDatos = () => {
     const storedData = localStorage.getItem('mesasMillonariasData');
     const data = storedData ? JSON.parse(storedData) : defaultData;
@@ -285,6 +310,7 @@ inputMontoPremio.addEventListener('input', actualizarPreviewMonto);
 btnSyncRemotaAvanzado.addEventListener('click', editarUrlRemotaAvanzado);
 
 document.addEventListener('DOMContentLoaded', () => {
+    migrarNombresColores21();
     cargarDatos();
     generarSelectores('lista-mesas-juego', todasLasMesas, 'mesas-en-juego');
     generarSelectores('lista-colores-21', coloresRuleta21, 'colores-ruleta-21');
